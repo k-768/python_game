@@ -4,6 +4,15 @@ import random
 from PIL import Image,ImageTk
 
 
+#--------------------------------
+#Fishing Game for Python learning
+#version: 0.3
+#last update: 2024/01/23
+#latest information:
+#・Upload to Git
+#author: k-768
+#--------------------------------
+
 #>>ディレクトリ>>
 cwd = os.getcwd()
 
