@@ -11,3 +11,4 @@ requirements.txtを参照してください。
 # 操作方法
 - WASDまたは矢印キーで移動
 - Spaceキーで釣り(予定)
+![アニメーション](anime2.gif)
