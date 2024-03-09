@@ -14,4 +14,4 @@ requirements.txtを参照してください。
 
 # 03/09進捗
 釣りアニメーション作成中
-![アニメーション](sample.gif)
+![sample](https://github.com/k-768/python_game/assets/151901057/da2b40f2-4d2c-495b-9abe-bdef2505e4f5)
