@@ -6,10 +6,12 @@ from PIL import Image,ImageTk
 
 #---------------------------------
 #Fishing Game for Python learning
-#version: 0.3
-#last update: 2024/01/23
+#version: 0.4
+#last update: 2024/03/16
 #latest information:
-#・Upload to Git
+#・Update fish list
+#・Add images of the fish
+#・Fixed a bug that allowed fishing at the edge of the screen.
 #author: k-768
 #---------------------------------
 
@@ -43,7 +45,7 @@ canvas.pack()
 
 #>>マップチップ>>
 #マップチップを1枚の画像に並べたマップシートを読み込む
-MAP_SHEET = Image.open(cwd+"/img/sheet2.png")
+MAP_SHEET = Image.open(cwd+"/img/sheet1.png")
 
 #読み込んだ画像から縦横何枚ずつチップがあるか求める
 CHIP_X = MAP_SHEET.width // CHIP_SIZE_X
@@ -115,8 +117,14 @@ FISHING_ICON = ImageTk.PhotoImage(Image.open(cwd+"/img/fishing.png"))
 
 #前のタイルが釣り可能ならば釣りアイコンを表示する関数
 def setFishingIcon(charaX,charaY,moveX,moveY):
+    """
+    charaX:キャラのx座標
+    charaY:キャラのy座標
+    moveX:x軸方向の移動
+    charaX:y軸方向の移動
+    """
     global fishFlag
-    if(FISHING_PERMIT[DEFAULT_MAP[charaY+moveY][charaX+moveX]]):
+    if((charaX+moveX)>=0 and (charaY+moveY)>=0 and (charaX+moveX)<X_MAPSIZE and (charaY+moveY)<Y_MAPSIZE and FISHING_PERMIT[DEFAULT_MAP[charaY+moveY][charaX+moveX]]):
         canvas.create_image(getRealCoord(charaX,charaY-1),image = FISHING_ICON,tag="icon",anchor=tk.NW)
         print(f"you can fishing @({charaX+moveX},{charaY+moveY})")
         fishFlag = True
@@ -125,11 +133,50 @@ def setFishingIcon(charaX,charaY,moveX,moveY):
 
 
 #>>魚>>
-fishFlag = False
+fishFlag = False #釣り可能かどうか
 FISH_RATE = [70,25,5]
-LOW_RARE_FISH = ["イワシ","アジ","サバ","タラ","ハリセンボン"]
-MIDDLE_RARE_FISH = ["フグ","タイ","サケ","スズキ","カレイ","ヒラメ","イカ","タコ"]
-HIGH_RARE_FISH = ["マグロ","カジキ","エイ","リュウグウノツカイ","サメ","チョウチンアンコウ","マンボウ","エイ","ウツボ"]
+LOW_RARE_FISH = [
+        {
+        "name":"イワシ",
+        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/iwashi.png"))
+        },
+        {
+        "name":"アジ",
+        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png"))
+        },
+        {
+        "name":"サバ",
+        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png"))
+        },
+    ]
+MIDDLE_RARE_FISH = [
+        {
+        "name":"カサゴ",
+        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png"))
+        },
+        {
+        "name":"カワハギ",
+        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png"))
+        },
+        {
+        "name":"メバル",
+        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png"))
+        },
+    ]
+HIGH_RARE_FISH = [
+        {
+        "name":"タイ",
+        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png"))
+        },
+        {
+        "name":"スズキ",
+        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png"))
+        },
+        {
+        "name":"タチウオ",
+        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png"))
+        },
+    ]
 FISH_LIST = []
 FISH_LIST.append(LOW_RARE_FISH)
 FISH_LIST.append(MIDDLE_RARE_FISH)
@@ -143,7 +190,11 @@ CHARA_HEIGHT = 48 #キャラの高さ
 charaX = 9 
 charaY = 8
 charaD = 0 #キャラの向き
-
+Flag = "defalt"
+#defalt:通常状態
+#wait:
+#move
+#
 moveFlag = False #移動フラグ True→移動中
 moveCount = 0    #移動カウンタ 0から3の4段階
 
@@ -184,7 +235,10 @@ def charaMove():
         
         if(fishFlag):
             if(key.count(32)):
-                print(random.choice((random.choices(FISH_LIST,k=1,weights = FISH_RATE))[0]))
+                selectedFish = random.choice((random.choices(FISH_LIST,k=1,weights = FISH_RATE))[0])
+                print(selectedFish["name"])
+                canvas.delete("fish")
+                canvas.create_image(0,0,image = selectedFish["img"],tag="fish",anchor=tk.NW)
         
         if(key.count(16)):#Shiftキーが押されているならダッシュ
             speed = 60
