@@ -1,15 +1,17 @@
-import tkinter as tk
+import copy
 import os
 import random
+import tkinter as tk
 from PIL import Image,ImageTk
 
 
 #---------------------------------
 #Fishing Game for Python learning
-#version: 0.41
+#version: 0.42
 #last update: 2024/03/23
 #latest information:
-#・Establish a system to manage the scene
+#・Fixed a bug that keyboard input was not reflected
+#  when the keyboard was pressed down briefly.
 #author: k-768
 #---------------------------------
 
@@ -234,11 +236,12 @@ def getCharaCoord(x,y,dx=0,dy=0):
 
 #キャラ移動関数
 def gameLoop():
-    global charaX,charaY,charaD,dashFlag,moveCount,moveX,moveY,flag
-    if (flag == "defalt"): #待機中のとき
-        lastKey = len(key) - 1 #最後に押されたキーの配列番号
-        speed = 100
-        
+    global charaX,charaY,charaD,dashFlag,moveCount,moveX,moveY,flag,key,currentKey
+    
+    lastKey = len(key) - 1 #最後に押されたキーの配列番号
+    speed = 1
+    
+    if (flag == "defalt"): #待機中のとき    
         if(fishFlag):#魚釣り可能な場所でSpace押されたら釣り開始
             if(key.count(32)):
                 flag = "wait"
@@ -247,6 +250,8 @@ def gameLoop():
             dashFlag = True
             if(key.index(16) == lastKey):
                 lastKey -= 1
+        else:
+            dashFlag = False
         
         if(len(key)): #SHIFT以外の何かのキーが押されているとき
             if(key[lastKey]==40 or key[lastKey]==83):#下入力
@@ -289,8 +294,11 @@ def gameLoop():
         #キャラを削除して再描写
         canvas.delete("chara")
         canvas.create_image(getCharaCoord(charaX,charaY,(moveCount+1)*moveX*0.25,(moveCount+1)*moveY*0.25),image = CHARA_CHIP[charaD][moveCount-2*(moveCount//3)],tag="chara",anchor=tk.NW)
+        if(dashFlag):
+            speed = 2
         if(moveCount==3):#アニメーションが最終コマならば
             flag = "defalt"#待機中に状態を戻す
+            dashFlag = False
             moveCount = 0
             charaX += moveX
             charaY += moveY
@@ -304,24 +312,28 @@ def gameLoop():
         canvas.delete("fish")
         canvas.create_image(0,0,image = selectedFish["img"],tag="fish",anchor=tk.NW)
         flag = "defalt"
-        
-    root.after(speed,gameLoop)
+    
+    key = copy.deepcopy(currentKey)
+    root.after(2*TICK_SPEED//speed,gameLoop)
 
 
 #>>キー監視>>
-key = []
+currentKey = []#現在押されているキー
+key = []       #前回の処理から押されたキー
 
 #何かのキーが押されたときに呼び出される関数
 def press(e):
     keycode = e.keycode
-    if(not key.count(keycode)):#始めて押されたならば
-        key.append(keycode)
+    if(not currentKey.count(keycode)):#始めて押されたならば
+        currentKey.append(keycode)
         print(f"pressed:{e.keysym}")
+    if(not key.count(keycode)):#前回の処理から始めて押されたならば
+        key.append(keycode)
 
 #何かのキーが離されたときに呼び出される関数
 def release(e):
     keycode = e.keycode
-    key.remove(keycode)
+    currentKey.remove(keycode)
     print(f"released:{e.keysym}")
 
 #キー入力をトリガーに関数を呼び出すよう設定する
