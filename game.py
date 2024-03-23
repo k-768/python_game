@@ -7,10 +7,10 @@ from PIL import Image,ImageTk
 
 #---------------------------------
 #Fishing Game for Python learning
-#version: 0.6
+#version: 0.61
 #last update: 2024/03/24
 #latest information:
-#・Resize Images
+#・Minor fixes and code cleanup
 #author: k-768
 #---------------------------------
 
@@ -34,7 +34,7 @@ CANVAS_SIZE = f"{CANVAS_WIDTH+MARGINE_X}x{CANVAS_HEIGHT+MARGINE_Y}"#キャンバ
 
 #ウィンドウ設置
 root = tk.Tk()
-root.title("Sample Game ver0.6")
+root.title("Sample Game ver0.61")
 root.geometry(CANVAS_SIZE)
 
 #キャンバス設置
@@ -241,23 +241,27 @@ CHARA_CHIP_WAIT = [
         ]for j in range(CHARA_Y)
     ]
 
-ROD_SHEET = CHARA_SHEET = Image.open(cwd+"/img/rod.png")
-ROD = [
-    [
-        ImageTk.PhotoImage(ROD_SHEET.crop((
-            128 * i,
-            160 * j,
-            128 * (i + 1),
-            160 * (j + 1)
-            ))) for i in range(CHARA_X)
-        ]for j in range(CHARA_Y)
-    ]
-
 #マップ座標からキャラをどこに配置するか決める関数
 #dx,dy:移動中の微小変化 0,0.25,0.5,0.75,1の5段階
 def getCharaCoord(x,y,dx=0,dy=0):
     return((x+dx)*CHIP_SIZE_X, (y+dy-0.5)*CHIP_SIZE_Y)
 
+#>>釣り竿>>
+ROD_WIDTH = 128
+ROD_HEIGHT  = 160
+ROD_SHEET = CHARA_SHEET = Image.open(cwd+"/img/rod.png")
+ROD = [
+    [
+        ImageTk.PhotoImage(ROD_SHEET.crop((
+            ROD_WIDTH * i,
+            ROD_HEIGHT * j,
+            ROD_WIDTH * (i + 1),
+            ROD_HEIGHT * (j + 1)
+            ))) for i in range(CHARA_X)
+        ]for j in range(CHARA_Y)
+    ]
+
+#マップ座標から釣り竿をどこに配置するか決める関数
 def getRodCoord(x,y,d):
     if(d==1):
         x -= 1
@@ -265,7 +269,7 @@ def getRodCoord(x,y,d):
         y -= 1
     return((x)*CHIP_SIZE_X, (y-0.5)*CHIP_SIZE_Y)
 
-#キャラ移動関数
+#ゲームのメインループ関数
 def gameLoop():
     global charaX,charaY,charaD,dashFlag,moveCount,moveX,moveY,flag,key,currentKey,speed,waitTick,fishingCount
     
