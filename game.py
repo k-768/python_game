@@ -7,10 +7,10 @@ from PIL import Image,ImageTk
 
 #---------------------------------
 #Fishing Game for Python learning
-#version: 0.5
-#last update: 2024/03/23
+#version: 0.6
+#last update: 2024/03/24
 #latest information:
-#・Completed fishing system.
+#・Resize Images
 #author: k-768
 #---------------------------------
 
@@ -19,10 +19,10 @@ cwd = os.getcwd()
 
 
 #>>マップ設定>>
-CHIP_SIZE_X = 32  #チップのxピクセル数
-CHIP_SIZE_Y = 32  #チップのyピクセル数
+CHIP_SIZE_X = 64  #チップのxピクセル数
+CHIP_SIZE_Y = 64  #チップのyピクセル数
 X_MAPSIZE = 20    #マップのx方向タイル数
-Y_MAPSIZE = 15    #マップのy方向タイル数
+Y_MAPSIZE = 10    #マップのy方向タイル数
 
 
 #>>ウィンドウ、キャンバス>>
@@ -34,7 +34,7 @@ CANVAS_SIZE = f"{CANVAS_WIDTH+MARGINE_X}x{CANVAS_HEIGHT+MARGINE_Y}"#キャンバ
 
 #ウィンドウ設置
 root = tk.Tk()
-root.title("Sample Game ver0.01")
+root.title("Sample Game ver0.6")
 root.geometry(CANVAS_SIZE)
 
 #キャンバス設置
@@ -63,11 +63,6 @@ MAP_CHIP = [
 #>>マップデータ>>
 #
 DEFAULT_MAP = [
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3, 3, 3],
@@ -183,12 +178,12 @@ FISH_LIST.append(MIDDLE_RARE_FISH)
 FISH_LIST.append(HIGH_RARE_FISH)
 
 #>>キャラクター>>
-CHARA_WIDTH = 32  #キャラの幅
-CHARA_HEIGHT = 48 #キャラの高さ
+CHARA_WIDTH = 64  #キャラの幅
+CHARA_HEIGHT = 96 #キャラの高さ
 
 #キャラクターのマップ座標
-charaX = 9 
-charaY = 8
+charaX = 3 
+charaY = 3
 charaD = 0 #キャラの向き
 flag = "defalt"
 '''
@@ -250,10 +245,10 @@ ROD_SHEET = CHARA_SHEET = Image.open(cwd+"/img/rod.png")
 ROD = [
     [
         ImageTk.PhotoImage(ROD_SHEET.crop((
-            64 * i,
-            80 * j,
-            64 * (i + 1),
-            80 * (j + 1)
+            128 * i,
+            160 * j,
+            128 * (i + 1),
+            160 * (j + 1)
             ))) for i in range(CHARA_X)
         ]for j in range(CHARA_Y)
     ]
