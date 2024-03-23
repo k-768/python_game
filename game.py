@@ -10,8 +10,7 @@ from PIL import Image,ImageTk
 #version: 0.42
 #last update: 2024/03/23
 #latest information:
-#・Fixed a bug that keyboard input was not reflected
-#  when the keyboard was pressed down briefly.
+#・Create a fishing system
 #author: k-768
 #---------------------------------
 
@@ -199,19 +198,23 @@ flag = "defalt"
 #success:釣り成功
 #miss:釣り失敗
 #result:釣り結果表示
+fishingCount = 0
+waitTick = 0
 
 dashFlag = False #ダッシュするか
 moveCount = 0    #移動カウンタ 0から3の4段階
 
 #ゲームの基本となる1ティック時間(ms)
-TICK_SPEED = 50  
+TICK_TIME = 50
+speed = 0.5 #ゲームの進行速度  
 
 #移動方向
 moveX = 0
 moveY = 0
 
 #キャラチップを1毎の画像に並べたキャラシートを読み込む
-CHARA_SHEET = Image.open(cwd+"/img/character_1.png")
+CHARA_SHEET = Image.open(cwd+"/img/character.png")
+CHARA_SHEET_WAIT = Image.open(cwd+"/img/character_wait.png")
 
 #読み込んだ画像から縦横何枚ずつチップがあるか求める
 CHARA_X = CHARA_SHEET.width // CHARA_WIDTH
@@ -229,6 +232,17 @@ CHARA_CHIP = [
         ]for j in range(CHARA_Y)
     ]
 
+CHARA_CHIP_WAIT = [
+    [
+        ImageTk.PhotoImage(CHARA_SHEET_WAIT.crop((
+            CHARA_WIDTH * i,
+            CHARA_HEIGHT * j,
+            CHARA_WIDTH * (i + 1),
+            CHARA_HEIGHT * (j + 1)
+            ))) for i in range(CHARA_X)
+        ]for j in range(CHARA_Y)
+    ]
+
 #マップ座標からキャラをどこに配置するか決める関数
 #dx,dy:移動中の微小変化 0,0.25,0.5,0.75,1の5段階
 def getCharaCoord(x,y,dx=0,dy=0):
@@ -236,15 +250,21 @@ def getCharaCoord(x,y,dx=0,dy=0):
 
 #キャラ移動関数
 def gameLoop():
-    global charaX,charaY,charaD,dashFlag,moveCount,moveX,moveY,flag,key,currentKey
+    global charaX,charaY,charaD,dashFlag,moveCount,moveX,moveY,flag,key,currentKey,speed,waitTick,fishingCount
     
     lastKey = len(key) - 1 #最後に押されたキーの配列番号
     speed = 1
-    
-    if (flag == "defalt"): #待機中のとき    
-        if(fishFlag):#魚釣り可能な場所でSpace押されたら釣り開始
-            if(key.count(32)):
+    if (flag == "defalt"): #待機中のとき 
+        if(fishFlag):#魚釣り可能な場所でCが押されたら釣り開始
+            if(key.count(67)):
+                canvas.delete("icon")#釣りアイコン削除
                 flag = "wait"
+                waitTick = random.randint(round(3000/TICK_TIME),round(5000/TICK_TIME))#3-5秒
+                print("------------------")
+                print(waitTick)
+                print("------------------")
+
+                fishingCount = 0
         
         if(key.count(16)):#Shiftキーが押されているならダッシュ
             dashFlag = True
@@ -295,7 +315,10 @@ def gameLoop():
         canvas.delete("chara")
         canvas.create_image(getCharaCoord(charaX,charaY,(moveCount+1)*moveX*0.25,(moveCount+1)*moveY*0.25),image = CHARA_CHIP[charaD][moveCount-2*(moveCount//3)],tag="chara",anchor=tk.NW)
         if(dashFlag):
-            speed = 2
+            speed = 1
+        else:
+            speed = 0.5
+        
         if(moveCount==3):#アニメーションが最終コマならば
             flag = "defalt"#待機中に状態を戻す
             dashFlag = False
@@ -307,6 +330,57 @@ def gameLoop():
             moveCount += 1
     
     elif (flag == "wait"):#魚釣り中のとき
+        if(fishingCount == 0):#初回なら
+            canvas.delete("chara")
+            canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP_WAIT[charaD][1],tag="chara",anchor=tk.NW)
+        elif(fishingCount >= waitTick):#待ち時間を終えたとき
+            print("-------------------------")
+            if(random.randint(1,3)==1):#1/3の確率で
+                flag = "hit"
+                waitTick = round(500/TICK_TIME)
+                fishingCount = 0
+            else:
+                flag = "bite"
+                waitTick = round(250/TICK_TIME)
+                fishingCount = 0
+        
+        if(key.count(32)):  #スペースキー押下されたとき
+            print("早すぎた！")
+            flag = "defalt"
+        
+        if (flag == "wait"):
+            fishingCount += 1
+        print(fishingCount)
+    
+    elif (flag == "bite"):
+        if(key.count(32)):  #スペースキー押下されたとき
+            print("早すぎた！")
+            flag = "defalt"
+        elif(fishingCount == 0):#初回なら
+            canvas.delete("chara")
+            canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP_WAIT[charaD][1],tag="chara",anchor=tk.NW)
+            print("ピク...")
+        elif(fishingCount == waitTick):#待ち時間を終えたとき
+            flag = "wait"
+            waitTick = random.randint(round(500/TICK_TIME),round(2000/TICK_TIME))
+            fishingCount = 0
+        
+        fishingCount += 1
+    
+    elif (flag == "hit"):
+        if(key.count(32)):  #スペースキー押下されたとき
+            flag = "success"
+        elif(fishingCount == 0):#初回なら
+            print("ビク！")
+            canvas.delete("chara")
+            canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP_WAIT[charaD][0],tag="chara",anchor=tk.NW)
+        elif(fishingCount == waitTick):#待ち時間を終えたとき
+            print("早すぎた！")
+            flag = "defalt"
+        
+        fishingCount += 1
+    
+    elif (flag == "success"):
         selectedFish = random.choice((random.choices(FISH_LIST,k=1,weights = FISH_RATE))[0])
         print(selectedFish["name"])
         canvas.delete("fish")
@@ -314,7 +388,7 @@ def gameLoop():
         flag = "defalt"
     
     key = copy.deepcopy(currentKey)
-    root.after(2*TICK_SPEED//speed,gameLoop)
+    root.after(round(TICK_TIME/speed),gameLoop)
 
 
 #>>キー監視>>
