@@ -6,12 +6,10 @@ from PIL import Image,ImageTk
 
 #---------------------------------
 #Fishing Game for Python learning
-#version: 0.4
-#last update: 2024/03/16
+#version: 0.41
+#last update: 2024/03/23
 #latest information:
-#・Update fish list
-#・Add images of the fish
-#・Fixed a bug that allowed fishing at the edge of the screen.
+#・Establish a system to manage the scene
 #author: k-768
 #---------------------------------
 
@@ -190,13 +188,21 @@ CHARA_HEIGHT = 48 #キャラの高さ
 charaX = 9 
 charaY = 8
 charaD = 0 #キャラの向き
-Flag = "defalt"
+flag = "defalt"
 #defalt:通常状態
-#wait:
-#move
-#
-moveFlag = False #移動フラグ True→移動中
+#move:移動中
+#wait:釣り中
+#bite:ウキがピクつく
+#hit:ウキが沈む
+#success:釣り成功
+#miss:釣り失敗
+#result:釣り結果表示
+
+dashFlag = False #ダッシュするか
 moveCount = 0    #移動カウンタ 0から3の4段階
+
+#ゲームの基本となる1ティック時間(ms)
+TICK_SPEED = 50  
 
 #移動方向
 moveX = 0
@@ -227,66 +233,64 @@ def getCharaCoord(x,y,dx=0,dy=0):
     return((x+dx)*CHIP_SIZE_X, (y+dy-0.5)*CHIP_SIZE_Y)
 
 #キャラ移動関数
-def charaMove():
-    global charaX,charaY,charaD,moveFlag,moveCount,moveX,moveY
-    speed = 120
-    if (not moveFlag): #移動中でないなら
+def gameLoop():
+    global charaX,charaY,charaD,dashFlag,moveCount,moveX,moveY,flag
+    if (flag == "defalt"): #待機中のとき
         lastKey = len(key) - 1 #最後に押されたキーの配列番号
+        speed = 100
         
-        if(fishFlag):
+        if(fishFlag):#魚釣り可能な場所でSpace押されたら釣り開始
             if(key.count(32)):
-                selectedFish = random.choice((random.choices(FISH_LIST,k=1,weights = FISH_RATE))[0])
-                print(selectedFish["name"])
-                canvas.delete("fish")
-                canvas.create_image(0,0,image = selectedFish["img"],tag="fish",anchor=tk.NW)
+                flag = "wait"
         
         if(key.count(16)):#Shiftキーが押されているならダッシュ
-            speed = 60
+            dashFlag = True
             if(key.index(16) == lastKey):
                 lastKey -= 1
         
         if(len(key)): #SHIFT以外の何かのキーが押されているとき
             if(key[lastKey]==40 or key[lastKey]==83):#下入力
-                moveFlag = True
+                flag = "move"
                 charaD = 0
                 moveX = 0
                 moveY = 1
                 print("↓")
             elif(key[lastKey]==37 or key[lastKey]==65):#左入力
-                moveFlag = True
+                flag = "move"
                 charaD = 1
                 moveX = -1
                 moveY = 0
                 print("←")
             elif(key[lastKey]==39 or key[lastKey]==68):#右入力
-                moveFlag = True
+                flag = "move"
                 charaD = 2
                 moveX = 1
                 moveY = 0
                 print("→")
             elif(key[lastKey]==38 or key[lastKey]==87):#上入力
-                moveFlag = True
+                flag = "move"
                 charaD = 3
                 moveX = 0
                 moveY = -1
                 print("↑")
             
             #上の処理で移動中フラグが立ったとき
-            if(moveFlag):
+            if(flag == "move"):
                 canvas.delete("icon")#釣りアイコン削除
                 #移動先が通行可能でないならば
                 if(not PASSAGE_PERMIT[DEFAULT_MAP[charaY+moveY][charaX+moveX]]):
                     #移動をやめて向きのみ変える
-                    moveFlag = False
+                    flag = "defalt"
                     canvas.delete("chara")
                     canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP[charaD][1],tag="chara",anchor=tk.NW)
                     setFishingIcon(charaX,charaY,moveX,moveY)
     
-    if (moveFlag):
+    if (flag == "move"):#移動中のとき
+        #キャラを削除して再描写
         canvas.delete("chara")
         canvas.create_image(getCharaCoord(charaX,charaY,(moveCount+1)*moveX*0.25,(moveCount+1)*moveY*0.25),image = CHARA_CHIP[charaD][moveCount-2*(moveCount//3)],tag="chara",anchor=tk.NW)
-        if(moveCount==3):
-            moveFlag = False
+        if(moveCount==3):#アニメーションが最終コマならば
+            flag = "defalt"#待機中に状態を戻す
             moveCount = 0
             charaX += moveX
             charaY += moveY
@@ -294,7 +298,14 @@ def charaMove():
         else:
             moveCount += 1
     
-    root.after(speed,charaMove)
+    elif (flag == "wait"):#魚釣り中のとき
+        selectedFish = random.choice((random.choices(FISH_LIST,k=1,weights = FISH_RATE))[0])
+        print(selectedFish["name"])
+        canvas.delete("fish")
+        canvas.create_image(0,0,image = selectedFish["img"],tag="fish",anchor=tk.NW)
+        flag = "defalt"
+        
+    root.after(speed,gameLoop)
 
 
 #>>キー監視>>
@@ -320,6 +331,6 @@ root.bind("<KeyRelease>", release)
 #>>メインループ>>>
 mapping()
 canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP[0][1],tag="chara",anchor=tk.NW)
-charaMove()
+gameLoop()
 print("start!")
 root.mainloop()
