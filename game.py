@@ -113,6 +113,7 @@ def getRealCoord(mapx, mapy):
 
 #>>釣りアイコン>>
 FISHING_ICON = ImageTk.PhotoImage(Image.open(cwd+"/img/fishing.png"))
+HIT_ICON = ImageTk.PhotoImage(Image.open(cwd+"/img/hit.png"))
 
 #前のタイルが釣り可能ならば釣りアイコンを表示する関数
 def setFishingIcon(charaX,charaY,moveX,moveY):
@@ -374,6 +375,7 @@ def gameLoop():
             print("ビク！")
             canvas.delete("chara")
             canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP_WAIT[charaD][0],tag="chara",anchor=tk.NW)
+            canvas.create_image(getRealCoord(charaX,charaY-1),image = HIT_ICON,tag="icon",anchor=tk.NW)
         elif(fishingCount == waitTick):#待ち時間を終えたとき
             print("早すぎた！")
             flag = "defalt"
