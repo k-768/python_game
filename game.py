@@ -7,10 +7,10 @@ from PIL import Image,ImageTk
 
 #---------------------------------
 #Fishing Game for Python learning
-#version: 0.42
+#version: 0.5
 #last update: 2024/03/23
 #latest information:
-#・Create a fishing system
+#・Completed fishing system.
 #author: k-768
 #---------------------------------
 
@@ -73,9 +73,9 @@ DEFAULT_MAP = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3, 3, 3],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3],
     [1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
-    [1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
-    [2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
-    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+    [1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+    [2, 2, 1, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+    [3, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
 ]
@@ -191,14 +191,16 @@ charaX = 9
 charaY = 8
 charaD = 0 #キャラの向き
 flag = "defalt"
-#defalt:通常状態
-#move:移動中
-#wait:釣り中
-#bite:ウキがピクつく
-#hit:ウキが沈む
-#success:釣り成功
-#miss:釣り失敗
-#result:釣り結果表示
+'''
+defalt:通常状態
+move:移動中
+wait:釣り中
+bite:ウキがピクつく
+hit:ウキが沈む
+success:釣り成功
+miss:釣り失敗
+result:釣り結果表示
+'''
 fishingCount = 0
 waitTick = 0
 
@@ -244,10 +246,29 @@ CHARA_CHIP_WAIT = [
         ]for j in range(CHARA_Y)
     ]
 
+ROD_SHEET = CHARA_SHEET = Image.open(cwd+"/img/rod.png")
+ROD = [
+    [
+        ImageTk.PhotoImage(ROD_SHEET.crop((
+            64 * i,
+            80 * j,
+            64 * (i + 1),
+            80 * (j + 1)
+            ))) for i in range(CHARA_X)
+        ]for j in range(CHARA_Y)
+    ]
+
 #マップ座標からキャラをどこに配置するか決める関数
 #dx,dy:移動中の微小変化 0,0.25,0.5,0.75,1の5段階
 def getCharaCoord(x,y,dx=0,dy=0):
     return((x+dx)*CHIP_SIZE_X, (y+dy-0.5)*CHIP_SIZE_Y)
+
+def getRodCoord(x,y,d):
+    if(d==1):
+        x -= 1
+    elif(d==3):
+        y -= 1
+    return((x)*CHIP_SIZE_X, (y-0.5)*CHIP_SIZE_Y)
 
 #キャラ移動関数
 def gameLoop():
@@ -261,9 +282,6 @@ def gameLoop():
                 canvas.delete("icon")#釣りアイコン削除
                 flag = "wait"
                 waitTick = random.randint(round(3000/TICK_TIME),round(5000/TICK_TIME))#3-5秒
-                print("------------------")
-                print(waitTick)
-                print("------------------")
 
                 fishingCount = 0
         
@@ -312,7 +330,7 @@ def gameLoop():
                     setFishingIcon(charaX,charaY,moveX,moveY)
     
     if (flag == "move"):#移動中のとき
-        #キャラを削除して再描写
+        #キャラクター再描写
         canvas.delete("chara")
         canvas.create_image(getCharaCoord(charaX,charaY,(moveCount+1)*moveX*0.25,(moveCount+1)*moveY*0.25),image = CHARA_CHIP[charaD][moveCount-2*(moveCount//3)],tag="chara",anchor=tk.NW)
         if(dashFlag):
@@ -332,61 +350,87 @@ def gameLoop():
     
     elif (flag == "wait"):#魚釣り中のとき
         if(fishingCount == 0):#初回なら
+            #キャラクター再描写
             canvas.delete("chara")
             canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP_WAIT[charaD][1],tag="chara",anchor=tk.NW)
+            #釣り竿描写
+            canvas.delete("rod")
+            canvas.create_image(getRodCoord(charaX,charaY,charaD),image = ROD[charaD][1],tag="rod",anchor=tk.NW)
         elif(fishingCount >= waitTick):#待ち時間を終えたとき
-            print("-------------------------")
             if(random.randint(1,3)==1):#1/3の確率で
                 flag = "hit"
-                waitTick = round(500/TICK_TIME)
+                waitTick = 10
                 fishingCount = 0
             else:
                 flag = "bite"
-                waitTick = round(250/TICK_TIME)
+                waitTick = random.randint(2,10)
                 fishingCount = 0
         
         if(key.count(32)):  #スペースキー押下されたとき
+            canvas.delete("chara")
+            canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP[charaD][1],tag="chara",anchor=tk.NW)
+            canvas.delete("rod")
             print("早すぎた！")
             flag = "defalt"
         
         if (flag == "wait"):
             fishingCount += 1
-        print(fishingCount)
     
     elif (flag == "bite"):
         if(key.count(32)):  #スペースキー押下されたとき
+            canvas.delete("chara")
+            canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP[charaD][1],tag="chara",anchor=tk.NW)
+            canvas.delete("rod")
             print("早すぎた！")
             flag = "defalt"
         elif(fishingCount == 0):#初回なら
+            #キャラクター再描写
             canvas.delete("chara")
             canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP_WAIT[charaD][1],tag="chara",anchor=tk.NW)
+            #釣り竿再描写
+            canvas.delete("rod")
+            canvas.create_image(getRodCoord(charaX,charaY,charaD),image = ROD[charaD][0],tag="rod",anchor=tk.NW)
             print("ピク...")
         elif(fishingCount == waitTick):#待ち時間を終えたとき
             flag = "wait"
-            waitTick = random.randint(round(500/TICK_TIME),round(2000/TICK_TIME))
+            waitTick = random.randint(round(200/TICK_TIME),round(2000/TICK_TIME))
             fishingCount = 0
         
-        fishingCount += 1
+        if (flag == "bite"):
+            fishingCount += 1
     
     elif (flag == "hit"):
         if(key.count(32)):  #スペースキー押下されたとき
             flag = "success"
         elif(fishingCount == 0):#初回なら
-            print("ビク！")
+            #キャラクター再描写
             canvas.delete("chara")
-            canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP_WAIT[charaD][0],tag="chara",anchor=tk.NW)
+            canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP_WAIT[charaD][2],tag="chara",anchor=tk.NW)
+            #釣り竿再描写
+            canvas.delete("rod")
+            canvas.create_image(getRodCoord(charaX,charaY,charaD),image = ROD[charaD][2],tag="rod",anchor=tk.NW)
+            #アイコン描写
             canvas.create_image(getRealCoord(charaX,charaY-1),image = HIT_ICON,tag="icon",anchor=tk.NW)
+            print("ビク！")
         elif(fishingCount == waitTick):#待ち時間を終えたとき
             print("早すぎた！")
+            canvas.delete("chara")
+            canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP[charaD][1],tag="chara",anchor=tk.NW)
+            canvas.delete("rod")
             flag = "defalt"
         
-        fishingCount += 1
+        if (flag == "hit"):
+            fishingCount += 1
     
     elif (flag == "success"):
         selectedFish = random.choice((random.choices(FISH_LIST,k=1,weights = FISH_RATE))[0])
         print(selectedFish["name"])
+        canvas.delete("chara")
+        canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP[charaD][1],tag="chara",anchor=tk.NW)
+        canvas.delete("rod")
+        canvas.delete("icon")
         canvas.delete("fish")
-        canvas.create_image(0,0,image = selectedFish["img"],tag="fish",anchor=tk.NW)
+        canvas.create_image(getCharaCoord(charaX,charaY),image = selectedFish["img"],tag="fish",anchor=tk.NW)
         flag = "defalt"
     
     key = copy.deepcopy(currentKey)
