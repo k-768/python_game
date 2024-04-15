@@ -7,8 +7,8 @@ from PIL import Image,ImageTk
 
 #---------------------------------
 #Fishing Game for Python learning
-#version: 0.61
-#last update: 2024/03/24
+#version: 0.62
+#last update: 2024/04/16
 #latest information:
 #・Minor fixes and code cleanup
 #author: k-768
@@ -430,6 +430,9 @@ def gameLoop():
         canvas.delete("icon")
         canvas.delete("fish")
         canvas.create_image(getCharaCoord(charaX,charaY),image = selectedFish["img"],tag="fish",anchor=tk.NW)
+        flag = "result"
+    
+    elif(flag == "result"):
         flag = "defalt"
     
     key = copy.deepcopy(currentKey)
