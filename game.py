@@ -7,7 +7,7 @@ from PIL import Image,ImageTk
 
 #---------------------------------
 #Fishing Game for Python learning
-#version: 0.62
+#version: 0.64
 #last update: 2024/04/16
 #latest information:
 #・Minor fixes and code cleanup
@@ -192,6 +192,7 @@ move:移動中
 wait:釣り中
 bite:ウキがピクつく
 hit:ウキが沈む
+fight:格闘中
 success:釣り成功
 miss:釣り失敗
 result:釣り結果表示
@@ -262,12 +263,20 @@ ROD = [
     ]
 
 #マップ座標から釣り竿をどこに配置するか決める関数
-def getRodCoord(x,y,d):
+def getRodCoord(x,y,d,isRandom = False):
+    dx = 0
+    dy = 0
+    
     if(d==1):
         x -= 1
     elif(d==3):
         y -= 1
-    return((x)*CHIP_SIZE_X, (y-0.5)*CHIP_SIZE_Y)
+    
+    if(isRandom):
+        dx = random.randint(0,2) -1
+        dy = random.randint(0,2) -1
+    
+    return((x)*CHIP_SIZE_X + dx, (y-0.5)*CHIP_SIZE_Y +dy)
 
 #ゲームのメインループ関数
 def gameLoop():
@@ -400,7 +409,8 @@ def gameLoop():
     
     elif (flag == "hit"):
         if(key.count(32)):  #スペースキー押下されたとき
-            flag = "success"
+            flag = "fight"
+            fishingCount = 0
         elif(fishingCount == 0):#初回なら
             #キャラクター再描写
             canvas.delete("chara")
@@ -421,7 +431,16 @@ def gameLoop():
         if (flag == "hit"):
             fishingCount += 1
     
-    elif (flag == "success"):
+    elif (flag == "fight"):
+        if(fishingCount < 20):
+            speed = 0.5
+            canvas.delete("rod")
+            canvas.create_image(getRodCoord(charaX,charaY,charaD,True),image = ROD[charaD][2],tag="rod",anchor=tk.NW)
+            fishingCount += 1
+        else:
+            flag = "success"
+    
+    elif(flag == "success"):
         selectedFish = random.choice((random.choices(FISH_LIST,k=1,weights = FISH_RATE))[0])
         print(selectedFish["name"])
         canvas.delete("chara")
@@ -433,7 +452,9 @@ def gameLoop():
         flag = "result"
     
     elif(flag == "result"):
-        flag = "defalt"
+        if(key.count(32)):  #スペースキー押下されたとき
+            flag = "defalt"
+            canvas.delete("fish")
     
     key = copy.deepcopy(currentKey)
     root.after(round(TICK_TIME/speed),gameLoop)
