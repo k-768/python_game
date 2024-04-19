@@ -7,8 +7,8 @@ from PIL import Image,ImageTk
 
 #---------------------------------
 #Fishing Game for Python learning
-#version: 0.64
-#last update: 2024/04/16
+#version: 0.65
+#last update: 2024/04/19
 #latest information:
 #・Minor fixes and code cleanup
 #author: k-768
@@ -34,7 +34,7 @@ CANVAS_SIZE = f"{CANVAS_WIDTH+MARGINE_X}x{CANVAS_HEIGHT+MARGINE_Y}"#キャンバ
 
 #ウィンドウ設置
 root = tk.Tk()
-root.title("Sample Game ver0.61")
+root.title("Sample Game ver0.65")
 root.geometry(CANVAS_SIZE)
 
 #キャンバス設置
@@ -119,17 +119,29 @@ def setFishingIcon(charaX,charaY,moveX,moveY):
     charaX:y軸方向の移動
     """
     global fishFlag
-    if((charaX+moveX)>=0 and (charaY+moveY)>=0 and (charaX+moveX)<X_MAPSIZE and (charaY+moveY)<Y_MAPSIZE and FISHING_PERMIT[DEFAULT_MAP[charaY+moveY][charaX+moveX]]):
-        canvas.create_image(getRealCoord(charaX,charaY-1),image = FISHING_ICON,tag="icon",anchor=tk.NW)
-        print(f"you can fishing @({charaX+moveX},{charaY+moveY})")
-        fishFlag = True
+    if (0 <= charaY+moveY < len(DEFAULT_MAP)) and (0 <= charaX+moveX < len(DEFAULT_MAP[0])):
+        # 移動先がマップ範囲内
+        if(FISHING_PERMIT[DEFAULT_MAP[charaY+moveY][charaX+moveX]]):
+            #前のマスが釣り可能
+            canvas.create_image(
+                getRealCoord(charaX,charaY-1),
+                image = FISHING_ICON,
+                tag="icon",anchor=tk.NW
+                )
+            print(f"you can fishing @({charaX+moveX},{charaY+moveY})")
+            fishFlag = True
+        else:
+            fishFlag = False
     else:
+        # 移動先がマップ範囲外
+        #*マップ間移動をするならここで処理するのが良き*
         fishFlag = False
+
 
 
 #>>魚>>
 fishFlag = False #釣り可能かどうか
-FISH_RATE = [70,25,5]
+FISH_RATE = [70,25,5] #魚の排出割合
 LOW_RARE_FISH = [
         {
         "name":"イワシ",
