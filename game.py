@@ -1,16 +1,18 @@
 import copy
 import os
 import random
+import numpy
 import tkinter as tk
 from PIL import Image,ImageTk
 
 
 #---------------------------------
 #Fishing Game for Python learning
-#version: 0.65
-#last update: 2024/04/19
+#version: 0.70
+#last update: 2024/04/20
 #latest information:
-#・Minor fixes and code cleanup
+#・Set the weight and price of the fish
+#・Numpy module is now required
 #author: k-768
 #---------------------------------
 
@@ -145,43 +147,70 @@ FISH_RATE = [70,25,5] #魚の排出割合
 LOW_RARE_FISH = [
         {
         "name":"イワシ",
-        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/iwashi.png"))
+        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/iwashi.png")),
+        "aveWeight":0.12, #平均重量
+        "stDev":0.02, #標準偏差(最大、最小重量≒aveWeight±stDev*2)
+        "price":60 #kg単価
         },
         {
         "name":"アジ",
-        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png"))
+        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png")),
+        "aveWeight":0.17,
+        "stDev":0.04, 
+        "price":100
         },
         {
         "name":"サバ",
-        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png"))
+        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png")),
+        "aveWeight":0.35,
+        "stDev":0.13, 
+        "price":50
         },
     ]
 MIDDLE_RARE_FISH = [
         {
-        "name":"カサゴ",
-        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png"))
+        "name":"タチウオ",
+        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png")),
+        "aveWeight":3,
+        "stDev":1, 
+        "price":12
         },
         {
         "name":"カワハギ",
-        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png"))
+        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png")),
+        "aveWeight":0.4,
+        "stDev":0.1, 
+        "price":80
         },
         {
         "name":"メバル",
-        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png"))
+        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png")),
+        "aveWeight":0.43,
+        "stDev":0.14, 
+        "price":100
         },
     ]
 HIGH_RARE_FISH = [
         {
         "name":"タイ",
-        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png"))
+        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png")),
+        "aveWeight":5.4,
+        "stDev":2.3, 
+        "price":20
         },
         {
         "name":"スズキ",
-        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png"))
+        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png")),
+        "aveWeight":5.5,
+        "stDev":2.25, 
+        "price":19
         },
         {
-        "name":"タチウオ",
-        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png"))
+        "name":"カサゴ",
+        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png")),
+        "aveWeight":1.65,
+        "stDev":0.58, 
+        "price":65
         },
     ]
 FISH_LIST = []
@@ -462,6 +491,14 @@ def gameLoop():
         canvas.delete("fish")
         canvas.create_image(getCharaCoord(charaX,charaY),image = selectedFish["img"],tag="fish",anchor=tk.NW)
         flag = "result"
+        
+        rng = numpy.random.default_rng()
+        fishWeight = rng.normal(selectedFish["aveWeight"],selectedFish["stDev"])
+        fishWeight = round(fishWeight,2)
+        print(fishWeight)
+        fishPrice = fishWeight * selectedFish["price"]
+        fishPrice = round(fishPrice)
+        print(fishPrice)
     
     elif(flag == "result"):
         if(key.count(32)):  #スペースキー押下されたとき
