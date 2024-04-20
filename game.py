@@ -8,10 +8,11 @@ from PIL import Image,ImageTk
 
 #---------------------------------
 #Fishing Game for Python learning
-#version: 0.71
+#version: 0.73
 #last update: 2024/04/20
 #latest information:
-#・You can fish with only the space key.
+#・Set rank by size
+#・Added images of fish up to medium rare
 #author: k-768
 #---------------------------------
 
@@ -35,7 +36,7 @@ CANVAS_SIZE = f"{CANVAS_WIDTH+MARGINE_X}x{CANVAS_HEIGHT+MARGINE_Y}"#キャンバ
 
 #ウィンドウ設置
 root = tk.Tk()
-root.title("Sample Game ver0.65")
+root.title("Sample Game ver0.73")
 root.geometry(CANVAS_SIZE)
 
 #キャンバス設置
@@ -160,7 +161,7 @@ LOW_RARE_FISH = [
         },
         {
         "name":"サバ",
-        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png")),
+        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/saba.png")),
         "aveWeight":0.35,
         "stDev":0.13, 
         "price":50
@@ -169,21 +170,21 @@ LOW_RARE_FISH = [
 MIDDLE_RARE_FISH = [
         {
         "name":"タチウオ",
-        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png")),
+        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/tachiuo.png")),
         "aveWeight":3,
         "stDev":1, 
         "price":12
         },
         {
         "name":"カワハギ",
-        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png")),
+        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/kawahagi.png")),
         "aveWeight":0.4,
         "stDev":0.1, 
         "price":80
         },
         {
         "name":"メバル",
-        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png")),
+        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/mebaru.png")),
         "aveWeight":0.43,
         "stDev":0.14, 
         "price":100
@@ -217,6 +218,81 @@ FISH_LIST.append(LOW_RARE_FISH)
 FISH_LIST.append(MIDDLE_RARE_FISH)
 FISH_LIST.append(HIGH_RARE_FISH)
 
+fishLog =  [
+        {
+        "name":"イワシ",
+        "count":0,            #釣れた回数
+        "maxWeight":0,  #最大重量
+        "silver":False,      #silverランクを釣ったか
+        "gold":False,       #goldランクを釣ったか
+        "totalWeight":0 #合計重量
+        },
+        {
+        "name":"アジ",
+        "count":0,
+        "maxWeight":0, 
+        "silver":False, 
+        "gold":False,
+        "totalWeight":0
+        },
+        {
+        "name":"サバ",
+        "count":0,
+        "maxWeight":0, 
+        "silver":False, 
+        "gold":False,
+        "totalWeight":0
+        },
+        {
+        "name":"タチウオ",
+        "count":0,
+        "maxWeight":0, 
+        "silver":False, 
+        "gold":False,
+        "totalWeight":0
+        },
+        {
+        "name":"カワハギ",
+        "count":0,
+        "maxWeight":0, 
+        "silver":False, 
+        "gold":False,
+        "totalWeight":0
+        },
+        {
+        "name":"メバル",
+        "count":0,
+        "maxWeight":0, 
+        "silver":False, 
+        "gold":False,
+        "totalWeight":0
+        },
+        {
+        "name":"タイ",
+        "count":0,
+        "maxWeight":0, 
+        "silver":False, 
+        "gold":False,
+        "totalWeight":0
+        },
+        {
+        "name":"スズキ",
+        "count":0,
+        "maxWeight":0, 
+        "silver":False, 
+        "gold":False,
+        "totalWeight":0
+        },
+        {
+        "name":"カサゴ",
+        "count":0,
+        "maxWeight":0, 
+        "silver":False, 
+        "gold":False,
+        "totalWeight":0
+        },
+    ]
+
 #>>キャラクター>>
 CHARA_WIDTH = 64  #キャラの幅
 CHARA_HEIGHT = 96 #キャラの高さ
@@ -225,6 +301,7 @@ CHARA_HEIGHT = 96 #キャラの高さ
 charaX = 3 
 charaY = 3
 charaD = 0 #キャラの向き
+money = 0 #所持金
 flag = "defalt"
 '''
 defalt:通常状態
@@ -320,7 +397,7 @@ def getRodCoord(x,y,d,isRandom = False):
 
 #ゲームのメインループ関数
 def gameLoop():
-    global charaX,charaY,charaD,dashFlag,moveCount,moveX,moveY,flag,key,currentKey,prevKey,speed,waitTick,fishingCount
+    global charaX,charaY,charaD,money,dashFlag,moveCount,moveX,moveY,flag,key,currentKey,prevKey,speed,waitTick,fishingCount
     
     lastKey = len(key) - 1 #最後に押されたキーの配列番号
     speed = 1
@@ -491,7 +568,21 @@ def gameLoop():
         print(fishWeight)
         #重さから売却価格を決定
         fishPrice = fishWeight * selectedFish["price"]
+        
+        #魚のランクを決定、ランクに応じて価格を上方修正
+        if(fishWeight > selectedFish["aveWeight"]+ 2*selectedFish["stDev"]):
+            fishRank = "gold"
+            fishPrice *= 1.25
+            print("🥇")
+        elif (fishWeight > selectedFish["aveWeight"]+ 1.5*selectedFish["stDev"]):
+            fishRank = "silver"
+            fishPrice *= 1.1
+            print("🥈")
+        else:
+            fishRank = "bronze"
+        
         fishPrice = round(fishPrice) #四捨五入
+        money += fishPrice
         print(fishPrice)
         
         #画像を更新する
@@ -507,6 +598,7 @@ def gameLoop():
         if(key.count(32)):  #スペースキー押下されたとき
             flag = "defalt"
             canvas.delete("fish")
+            setFishingIcon(charaX,charaY,moveX,moveY)
     
     prevKey = copy.deepcopy(key)
     key = copy.deepcopy(currentKey)
