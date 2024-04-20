@@ -8,11 +8,10 @@ from PIL import Image,ImageTk
 
 #---------------------------------
 #Fishing Game for Python learning
-#version: 0.70
+#version: 0.71
 #last update: 2024/04/20
 #latest information:
-#・Set the weight and price of the fish
-#・Numpy module is now required
+#・You can fish with only the space key.
 #author: k-768
 #---------------------------------
 
@@ -321,13 +320,13 @@ def getRodCoord(x,y,d,isRandom = False):
 
 #ゲームのメインループ関数
 def gameLoop():
-    global charaX,charaY,charaD,dashFlag,moveCount,moveX,moveY,flag,key,currentKey,speed,waitTick,fishingCount
+    global charaX,charaY,charaD,dashFlag,moveCount,moveX,moveY,flag,key,currentKey,prevKey,speed,waitTick,fishingCount
     
     lastKey = len(key) - 1 #最後に押されたキーの配列番号
     speed = 1
     if (flag == "defalt"): #待機中のとき 
-        if(fishFlag):#魚釣り可能な場所でCが押されたら釣り開始
-            if(key.count(67)):
+        if(fishFlag):#魚釣り可能な場所でSpaceが押されたら釣り開始
+            if(key.count(32) and (not prevKey.count(32))):
                 canvas.delete("icon")#釣りアイコン削除
                 flag = "wait"
                 waitTick = random.randint(round(3000/TICK_TIME),round(5000/TICK_TIME))#3-5秒
@@ -415,17 +414,17 @@ def gameLoop():
                 waitTick = random.randint(2,10)
                 fishingCount = 0
         
-        if(key.count(32)):  #スペースキー押下されたとき
+        if(key.count(32) and not prevKey.count(32) and  fishingCount):  #スペースキー押下されたとき
             canvas.delete("chara")
             canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP[charaD][1],tag="chara",anchor=tk.NW)
             canvas.delete("rod")
             print("早すぎた！")
             flag = "defalt"
-        
+            
         if (flag == "wait"):
             fishingCount += 1
     
-    elif (flag == "bite"):
+    elif (flag == "bite"): #魚が少し喰いついたとき
         if(key.count(32)):  #スペースキー押下されたとき
             canvas.delete("chara")
             canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP[charaD][1],tag="chara",anchor=tk.NW)
@@ -448,7 +447,7 @@ def gameLoop():
         if (flag == "bite"):
             fishingCount += 1
     
-    elif (flag == "hit"):
+    elif (flag == "hit"): #魚がかかったとき
         if(key.count(32)):  #スペースキー押下されたとき
             flag = "fight"
             fishingCount = 0
@@ -472,7 +471,7 @@ def gameLoop():
         if (flag == "hit"):
             fishingCount += 1
     
-    elif (flag == "fight"):
+    elif (flag == "fight"): #かかった魚を釣り上げているとき
         if(fishingCount < 20):
             speed = 0.5
             canvas.delete("rod")
@@ -481,9 +480,21 @@ def gameLoop():
         else:
             flag = "success"
     
-    elif(flag == "success"):
+    elif(flag == "success"): #釣りに成功したとき
+        #ランダムな魚を選択
         selectedFish = random.choice((random.choices(FISH_LIST,k=1,weights = FISH_RATE))[0])
         print(selectedFish["name"])
+        #魚の重さを決定(正規分布に従う)
+        rng = numpy.random.default_rng()
+        fishWeight = rng.normal(selectedFish["aveWeight"],selectedFish["stDev"])
+        fishWeight = round(fishWeight,2) #少数第3位で四捨五入
+        print(fishWeight)
+        #重さから売却価格を決定
+        fishPrice = fishWeight * selectedFish["price"]
+        fishPrice = round(fishPrice) #四捨五入
+        print(fishPrice)
+        
+        #画像を更新する
         canvas.delete("chara")
         canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP[charaD][1],tag="chara",anchor=tk.NW)
         canvas.delete("rod")
@@ -492,19 +503,12 @@ def gameLoop():
         canvas.create_image(getCharaCoord(charaX,charaY),image = selectedFish["img"],tag="fish",anchor=tk.NW)
         flag = "result"
         
-        rng = numpy.random.default_rng()
-        fishWeight = rng.normal(selectedFish["aveWeight"],selectedFish["stDev"])
-        fishWeight = round(fishWeight,2)
-        print(fishWeight)
-        fishPrice = fishWeight * selectedFish["price"]
-        fishPrice = round(fishPrice)
-        print(fishPrice)
-    
-    elif(flag == "result"):
+    elif(flag == "result"): #結果表示中のとき
         if(key.count(32)):  #スペースキー押下されたとき
             flag = "defalt"
             canvas.delete("fish")
     
+    prevKey = copy.deepcopy(key)
     key = copy.deepcopy(currentKey)
     root.after(round(TICK_TIME/speed),gameLoop)
 
@@ -512,6 +516,7 @@ def gameLoop():
 #>>キー監視>>
 currentKey = []#現在押されているキー
 key = []       #前回の処理から押されたキー
+prevKey = [] #前回の処理までに押されたキー
 
 #何かのキーが押されたときに呼び出される関数
 def press(e):
