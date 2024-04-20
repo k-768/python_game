@@ -1,0 +1,78 @@
+{
+  "\u30a4\u30ef\u30b7": {
+    "count": 0,
+    "maxWeight": 0,
+    "bronze": false,
+    "silver": false,
+    "gold": false,
+    "totalWeight": 0
+  },
+  "\u30a2\u30b8": {
+    "count": 0,
+    "maxWeight": 0,
+    "bronze": false,
+    "silver": false,
+    "gold": false,
+    "totalWeight": 0
+  },
+  "\u30b5\u30d0": {
+    "count": 0,
+    "maxWeight": 0,
+    "bronze": false,
+    "silver": false,
+    "gold": false,
+    "totalWeight": 0
+  },
+  "\u30bf\u30c1\u30a6\u30aa": {
+    "count": 0,
+    "maxWeight": 0,
+    "bronze": false,
+    "silver": false,
+    "gold": false,
+    "totalWeight": 0
+  },
+  "\u30ab\u30ef\u30cf\u30ae": {
+    "count": 0,
+    "maxWeight": 0,
+    "bronze": false,
+    "silver": false,
+    "gold": false,
+    "totalWeight": 0
+  },
+  "\u30e1\u30d0\u30eb": {
+    "count": 1,
+    "maxWeight": 0.64,
+    "bronze": true,
+    "silver": false,
+    "gold": false,
+    "totalWeight": 0.64
+  },
+  "\u30bf\u30a4": {
+    "count": 0,
+    "maxWeight": 0,
+    "bronze": false,
+    "silver": false,
+    "gold": false,
+    "totalWeight": 0
+  },
+  "\u30b9\u30ba\u30ad": {
+    "count": 0,
+    "maxWeight": 0,
+    "bronze": false,
+    "silver": false,
+    "gold": false,
+    "totalWeight": 0
+  },
+  "\u30ab\u30b5\u30b4": {
+    "count": 0,
+    "maxWeight": 0,
+    "bronze": false,
+    "silver": false,
+    "gold": false,
+    "totalWeight": 0
+  },
+  "money": 64,
+  "x": 3,
+  "y": 6,
+  "d": 0
+}

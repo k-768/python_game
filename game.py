@@ -1,6 +1,8 @@
 import copy
+import json
 import os
 import random
+import sys
 import numpy
 import tkinter as tk
 from PIL import Image,ImageTk
@@ -8,11 +10,10 @@ from PIL import Image,ImageTk
 
 #---------------------------------
 #Fishing Game for Python learning
-#version: 0.73
+#version: 0.80
 #last update: 2024/04/20
 #latest information:
-#・Set rank by size
-#・Added images of fish up to medium rare
+#・Save & Load function is available
 #author: k-768
 #---------------------------------
 
@@ -36,7 +37,7 @@ CANVAS_SIZE = f"{CANVAS_WIDTH+MARGINE_X}x{CANVAS_HEIGHT+MARGINE_Y}"#キャンバ
 
 #ウィンドウ設置
 root = tk.Tk()
-root.title("Sample Game ver0.73")
+root.title("Sample Game ver0.80")
 root.geometry(CANVAS_SIZE)
 
 #キャンバス設置
@@ -218,90 +219,99 @@ FISH_LIST.append(LOW_RARE_FISH)
 FISH_LIST.append(MIDDLE_RARE_FISH)
 FISH_LIST.append(HIGH_RARE_FISH)
 
-fishLog =  [
-        {
-        "name":"イワシ",
-        "count":0,            #釣れた回数
-        "maxWeight":0,  #最大重量
-        "silver":False,      #silverランクを釣ったか
-        "gold":False,       #goldランクを釣ったか
-        "totalWeight":0 #合計重量
+
+try:
+    with open(cwd + "/save/savedata.json") as f:
+        saveData = json.load(f)
+    print(saveData)
+except:
+    saveData =  {
+        "イワシ":{
+            "count":0,            #釣れた回数
+            "maxWeight":0,  #最大重量
+            "bronze":False,    #bronzeランクを釣ったか
+            "silver":False,      #silverランクを釣ったか
+            "gold":False,       #goldランクを釣ったか
+            "totalWeight":0 #合計重量
         },
-        {
-        "name":"アジ",
-        "count":0,
-        "maxWeight":0, 
-        "silver":False, 
-        "gold":False,
-        "totalWeight":0
+        "アジ":{
+            "count":0,
+            "maxWeight":0, 
+            "bronze":False,
+            "silver":False, 
+            "gold":False,
+            "totalWeight":0
         },
-        {
-        "name":"サバ",
-        "count":0,
-        "maxWeight":0, 
-        "silver":False, 
-        "gold":False,
-        "totalWeight":0
+        "サバ":{
+            "count":0,
+            "maxWeight":0, 
+            "bronze":False,
+            "silver":False, 
+            "gold":False,
+            "totalWeight":0
         },
-        {
-        "name":"タチウオ",
-        "count":0,
-        "maxWeight":0, 
-        "silver":False, 
-        "gold":False,
-        "totalWeight":0
+        "タチウオ":{
+            "count":0,
+            "maxWeight":0, 
+            "bronze":False,
+            "silver":False, 
+            "gold":False,
+            "totalWeight":0
         },
-        {
-        "name":"カワハギ",
-        "count":0,
-        "maxWeight":0, 
-        "silver":False, 
-        "gold":False,
-        "totalWeight":0
+        "カワハギ":{
+            "count":0,
+            "maxWeight":0, 
+            "bronze":False,
+            "silver":False, 
+            "gold":False,
+            "totalWeight":0
         },
-        {
-        "name":"メバル",
-        "count":0,
-        "maxWeight":0, 
-        "silver":False, 
-        "gold":False,
-        "totalWeight":0
+        "メバル":{
+            "count":0,
+            "maxWeight":0, 
+            "bronze":False,
+            "silver":False, 
+            "gold":False,
+            "totalWeight":0
         },
-        {
-        "name":"タイ",
-        "count":0,
-        "maxWeight":0, 
-        "silver":False, 
-        "gold":False,
-        "totalWeight":0
+        "タイ":{
+            "count":0,
+            "maxWeight":0, 
+            "bronze":False,
+            "silver":False, 
+            "gold":False,
+            "totalWeight":0
         },
-        {
-        "name":"スズキ",
-        "count":0,
-        "maxWeight":0, 
-        "silver":False, 
-        "gold":False,
-        "totalWeight":0
+        "スズキ":{
+            "count":0,
+            "maxWeight":0, 
+            "bronze":False,
+            "silver":False, 
+            "gold":False,
+            "totalWeight":0
         },
-        {
-        "name":"カサゴ",
-        "count":0,
-        "maxWeight":0, 
-        "silver":False, 
-        "gold":False,
-        "totalWeight":0
+        "カサゴ":{
+            "count":0,
+            "maxWeight":0, 
+            "bronze":False,
+            "silver":False, 
+            "gold":False,
+            "totalWeight":0
         },
-    ]
+        "money":0,
+        "x":3,
+        "y":3,
+        "d":0
+    }
 
 #>>キャラクター>>
 CHARA_WIDTH = 64  #キャラの幅
 CHARA_HEIGHT = 96 #キャラの高さ
 
 #キャラクターのマップ座標
-charaX = 3 
-charaY = 3
-charaD = 0 #キャラの向き
-money = 0 #所持金
+charaX = saveData["x"] 
+charaY = saveData["y"] 
+charaD = saveData["d"]  #キャラの向き
 flag = "defalt"
 '''
 defalt:通常状態
@@ -395,12 +405,24 @@ def getRodCoord(x,y,d,isRandom = False):
     
     return((x)*CHIP_SIZE_X + dx, (y-0.5)*CHIP_SIZE_Y +dy)
 
+def saveGame():
+    saveData["x"] = charaX
+    saveData["y"] = charaY
+    saveData["d"] = charaD 
+    with open(cwd + "/save/savedata.json",'w') as f:
+        json.dump(saveData,f,indent=2)
+
 #ゲームのメインループ関数
 def gameLoop():
-    global charaX,charaY,charaD,money,dashFlag,moveCount,moveX,moveY,flag,key,currentKey,prevKey,speed,waitTick,fishingCount
+    global charaX,charaY,charaD,saveData,dashFlag,moveCount,moveX,moveY,flag,key,currentKey,prevKey,speed,waitTick,fishingCount
     
     lastKey = len(key) - 1 #最後に押されたキーの配列番号
     speed = 1
+    
+    if(key.count(17) and key.count(67)):
+        saveGame()
+        sys.exit()
+    
     if (flag == "defalt"): #待機中のとき 
         if(fishFlag):#魚釣り可能な場所でSpaceが押されたら釣り開始
             if(key.count(32) and (not prevKey.count(32))):
@@ -539,7 +561,7 @@ def gameLoop():
             canvas.create_image(getRealCoord(charaX,charaY-1),image = HIT_ICON,tag="icon",anchor=tk.NW)
             print("ビク！")
         elif(fishingCount == waitTick):#待ち時間を終えたとき
-            print("早すぎた！")
+            print("遅すぎた！")
             canvas.delete("chara")
             canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP[charaD][1],tag="chara",anchor=tk.NW)
             canvas.delete("rod")
@@ -582,8 +604,20 @@ def gameLoop():
             fishRank = "bronze"
         
         fishPrice = round(fishPrice) #四捨五入
-        money += fishPrice
-        print(fishPrice)
+        
+        #データを更新する
+        saveData[selectedFish["name"]]["count"] += 1 #釣った数+1
+        saveData[selectedFish["name"]]["totalWeight"] += fishWeight #総重量加算
+        
+        if(not saveData[selectedFish["name"]][fishRank] ): #そのランクを釣るのが初めてなら更新
+            saveData[selectedFish["name"]][fishRank] = True
+            
+        if(saveData[selectedFish["name"]]["maxWeight"] < fishWeight ): #釣った魚が今までで一番重ければ記録を更新
+            saveData[selectedFish["name"]]["maxWeight"] = fishWeight
+        
+        saveData["money"] += fishPrice #所持金を更新
+        saveGame()
+        print(saveData["money"])
         
         #画像を更新する
         canvas.delete("chara")
