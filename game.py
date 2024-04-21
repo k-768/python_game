@@ -10,10 +10,11 @@ from PIL import Image,ImageTk
 
 #---------------------------------
 #Fishing Game for Python learning
-#version: 0.80
-#last update: 2024/04/20
+#version: 0.81
+#last update: 2024/04/21
 #latest information:
-#・Save & Load function is available
+#・Add images of icon 
+#・Improve the character's display system
 #author: k-768
 #---------------------------------
 
@@ -37,7 +38,7 @@ CANVAS_SIZE = f"{CANVAS_WIDTH+MARGINE_X}x{CANVAS_HEIGHT+MARGINE_Y}"#キャンバ
 
 #ウィンドウ設置
 root = tk.Tk()
-root.title("Sample Game ver0.80")
+root.title("Sample Game ver0.81")
 root.geometry(CANVAS_SIZE)
 
 #キャンバス設置
@@ -109,9 +110,14 @@ def getRealCoord(mapx, mapy):
     return(mapx * CHIP_SIZE_X, mapy * CHIP_SIZE_Y)
 
 
-#>>釣りアイコン>>
-FISHING_ICON = ImageTk.PhotoImage(Image.open(cwd+"/img/fishing.png"))
-HIT_ICON = ImageTk.PhotoImage(Image.open(cwd+"/img/hit.png"))
+#>>アイコン>>
+# 吹き出し
+ICON = {
+    "fishing" : ImageTk.PhotoImage(Image.open(cwd+"/img/fishing.png")),
+    "hit" : ImageTk.PhotoImage(Image.open(cwd+"/img/hit.png")),
+    "miss" : ImageTk.PhotoImage(Image.open(cwd+"/img/miss.png")),
+    "success" : ImageTk.PhotoImage(Image.open(cwd+"/img/success.png")),
+}
 
 #前のタイルが釣り可能ならば釣りアイコンを表示する関数
 def setFishingIcon(charaX,charaY,moveX,moveY):
@@ -128,7 +134,7 @@ def setFishingIcon(charaX,charaY,moveX,moveY):
             #前のマスが釣り可能
             canvas.create_image(
                 getRealCoord(charaX,charaY-1),
-                image = FISHING_ICON,
+                image = ICON["fishing"],
                 tag="icon",anchor=tk.NW
                 )
             print(f"you can fishing @({charaX+moveX},{charaY+moveY})")
@@ -303,6 +309,7 @@ except:
         "y":3,
         "d":0
     }
+    
 
 #>>キャラクター>>
 CHARA_WIDTH = 64  #キャラの幅
@@ -374,10 +381,29 @@ CHARA_CHIP_WAIT = [
 def getCharaCoord(x,y,dx=0,dy=0):
     return((x+dx)*CHIP_SIZE_X, (y+dy-0.5)*CHIP_SIZE_Y)
 
+#キャラクターを再描写する関数
+def setChara(x,y,d,frame,source = "walk"):
+    """
+    x:キャラのX座標
+    y:キャラのY座標
+    d:キャラの向き
+    frame:コマ数
+    source:"walk" or "fishing"
+    """
+    #キャラの画像を選択
+    if source == "walk":
+        img = CHARA_CHIP[d][frame]
+    else:
+        img = CHARA_CHIP_WAIT[d][frame]
+    
+    #今の画像を消して再描写
+    canvas.delete("chara")
+    canvas.create_image(getCharaCoord(x,y),image =img ,tag="chara",anchor=tk.NW)
+
 #>>釣り竿>>
 ROD_WIDTH = 128
 ROD_HEIGHT  = 160
-ROD_SHEET = CHARA_SHEET = Image.open(cwd+"/img/rod.png")
+ROD_SHEET = Image.open(cwd+"/img/rod.png")
 ROD = [
     [
         ImageTk.PhotoImage(ROD_SHEET.crop((
@@ -419,6 +445,7 @@ def gameLoop():
     lastKey = len(key) - 1 #最後に押されたキーの配列番号
     speed = 1
     
+    #Ctrl+Cが押されたとき、セーブして終了
     if(key.count(17) and key.count(67)):
         saveGame()
         sys.exit()
@@ -472,8 +499,7 @@ def gameLoop():
                 if(not PASSAGE_PERMIT[DEFAULT_MAP[charaY+moveY][charaX+moveX]]):
                     #移動をやめて向きのみ変える
                     flag = "defalt"
-                    canvas.delete("chara")
-                    canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP[charaD][1],tag="chara",anchor=tk.NW)
+                    setChara(charaX,charaY,charaD,1,"walk")
                     setFishingIcon(charaX,charaY,moveX,moveY)
     
     if (flag == "move"):#移動中のとき
@@ -498,8 +524,7 @@ def gameLoop():
     elif (flag == "wait"):#魚釣り中のとき
         if(fishingCount == 0):#初回なら
             #キャラクター再描写
-            canvas.delete("chara")
-            canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP_WAIT[charaD][1],tag="chara",anchor=tk.NW)
+            setChara(charaX,charaY,charaD,1,"fishing")
             #釣り竿描写
             canvas.delete("rod")
             canvas.create_image(getRodCoord(charaX,charaY,charaD),image = ROD[charaD][1],tag="rod",anchor=tk.NW)
@@ -513,10 +538,13 @@ def gameLoop():
                 waitTick = random.randint(2,10)
                 fishingCount = 0
         
-        if(key.count(32) and not prevKey.count(32) and  fishingCount):  #スペースキー押下されたとき
-            canvas.delete("chara")
-            canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP[charaD][1],tag="chara",anchor=tk.NW)
+        # スペースキーが再び押された時
+        if(key.count(32) and not prevKey.count(32) and  fishingCount): 
+            setChara(charaX,charaY,charaD,1,"walk")
             canvas.delete("rod")
+            #アイコン描写
+            canvas.delete("icon")
+            canvas.create_image(getRealCoord(charaX,charaY-1),image = ICON["miss"],tag="icon",anchor=tk.NW)
             print("早すぎた！")
             flag = "defalt"
             
@@ -525,15 +553,17 @@ def gameLoop():
     
     elif (flag == "bite"): #魚が少し喰いついたとき
         if(key.count(32)):  #スペースキー押下されたとき
-            canvas.delete("chara")
-            canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP[charaD][1],tag="chara",anchor=tk.NW)
+            #釣りの姿勢から歩行姿勢に戻す
+            setChara(charaX,charaY,charaD,1,"walk")
             canvas.delete("rod")
+            #アイコン描写
+            canvas.delete("icon")
+            canvas.create_image(getRealCoord(charaX,charaY-1),image = ICON["miss"],tag="icon",anchor=tk.NW)
             print("早すぎた！")
             flag = "defalt"
         elif(fishingCount == 0):#初回なら
             #キャラクター再描写
-            canvas.delete("chara")
-            canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP_WAIT[charaD][1],tag="chara",anchor=tk.NW)
+            setChara(charaX,charaY,charaD,1,"fishing")
             #釣り竿再描写
             canvas.delete("rod")
             canvas.create_image(getRodCoord(charaX,charaY,charaD),image = ROD[charaD][0],tag="rod",anchor=tk.NW)
@@ -552,19 +582,22 @@ def gameLoop():
             fishingCount = 0
         elif(fishingCount == 0):#初回なら
             #キャラクター再描写
-            canvas.delete("chara")
-            canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP_WAIT[charaD][2],tag="chara",anchor=tk.NW)
+            setChara(charaX,charaY,charaD,2,"fishing")
             #釣り竿再描写
             canvas.delete("rod")
             canvas.create_image(getRodCoord(charaX,charaY,charaD),image = ROD[charaD][2],tag="rod",anchor=tk.NW)
             #アイコン描写
-            canvas.create_image(getRealCoord(charaX,charaY-1),image = HIT_ICON,tag="icon",anchor=tk.NW)
+            canvas.delete("icon")
+            canvas.create_image(getRealCoord(charaX,charaY-1),image = ICON["hit"],tag="icon",anchor=tk.NW)
             print("ビク！")
         elif(fishingCount == waitTick):#待ち時間を終えたとき
             print("遅すぎた！")
-            canvas.delete("chara")
-            canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP[charaD][1],tag="chara",anchor=tk.NW)
+            #釣りの姿勢から歩行姿勢に戻す
+            setChara(charaX,charaY,charaD,1,"walk")
             canvas.delete("rod")
+            #アイコン描写
+            canvas.delete("icon")
+            canvas.create_image(getRealCoord(charaX,charaY-1),image = ICON["miss"],tag="icon",anchor=tk.NW)
             flag = "defalt"
         
         if (flag == "hit"):
@@ -618,14 +651,17 @@ def gameLoop():
         saveData["money"] += fishPrice #所持金を更新
         saveGame()
         print(saveData["money"])
+        money.set(str(saveData["money"])+"G")
         
-        #画像を更新する
-        canvas.delete("chara")
-        canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP[charaD][1],tag="chara",anchor=tk.NW)
+        #釣りの姿勢から通常状態に戻す
+        setChara(charaX,charaY,charaD,1,"walk")
         canvas.delete("rod")
-        canvas.delete("icon")
+        #*魚を仮表示
         canvas.delete("fish")
         canvas.create_image(getCharaCoord(charaX,charaY),image = selectedFish["img"],tag="fish",anchor=tk.NW)
+        #アイコン描写
+        canvas.delete("icon")
+        canvas.create_image(getRealCoord(charaX,charaY-1),image = ICON["success"],tag="icon",anchor=tk.NW)
         flag = "result"
         
     elif(flag == "result"): #結果表示中のとき
@@ -638,6 +674,9 @@ def gameLoop():
     key = copy.deepcopy(currentKey)
     root.after(round(TICK_TIME/speed),gameLoop)
 
+#所持金が変更されたとき呼び出され、表示を変更する
+def on_change(varname, index, mode):
+    canvas.itemconfigure(money_text, text=root.getvar(varname))
 
 #>>キー監視>>
 currentKey = []#現在押されているキー
@@ -666,6 +705,11 @@ root.bind("<KeyRelease>", release)
 #>>メインループ>>>
 mapping()
 canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP[0][1],tag="chara",anchor=tk.NW)
+
+money = tk.StringVar(root,str(saveData["money"])+"G")
+money.trace_add('write', on_change)
+money_text = canvas.create_text(50,30, fill = "brown",font = ("System",24), text = money.get(), tag = "money")
+
 gameLoop()
 print("start!")
 root.mainloop()
