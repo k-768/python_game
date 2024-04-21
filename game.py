@@ -10,11 +10,10 @@ from PIL import Image,ImageTk
 
 #---------------------------------
 #Fishing Game for Python learning
-#version: 0.81
+#version: 0.90
 #last update: 2024/04/21
 #latest information:
-#・Add images of icon 
-#・Improve the character's display system
+#・The result window is displayed.
 #author: k-768
 #---------------------------------
 
@@ -120,25 +119,32 @@ ICON = {
     "success" : ImageTk.PhotoImage(Image.open(cwd+"/img/success.png")),
 }
 
-#前のタイルが釣り可能ならば釣りアイコンを表示する関数
-def setFishingIcon(charaX,charaY,moveX,moveY):
+#アイコンを表示する関数
+def setIcon(x,y,type):
     """
-    charaX:キャラのx座標
-    charaY:キャラのy座標
+    x:キャラのx座標
+    y:キャラのy座標
+    type:アイコンの種類
+    """
+    # 一回消して再描写
+    canvas.delete("icon")
+    canvas.create_image(getRealCoord(x , y-1),image = ICON[type],tag="icon",anchor=tk.NW)#キャラの上に表示するので、y座標はy-1されている
+
+#前のタイルが釣り可能ならば釣りアイコンを表示する関数
+def setFishingIcon(x,y,moveX,moveY):
+    """
+    x:キャラのx座標
+    y:キャラのy座標
     moveX:x軸方向の移動
-    charaX:y軸方向の移動
+    moveY:y軸方向の移動
     """
     global fishFlag
-    if (0 <= charaY+moveY < len(DEFAULT_MAP)) and (0 <= charaX+moveX < len(DEFAULT_MAP[0])):
-        # 移動先がマップ範囲内
-        if(FISHING_PERMIT[DEFAULT_MAP[charaY+moveY][charaX+moveX]]):
-            #前のマスが釣り可能
-            canvas.create_image(
-                getRealCoord(charaX,charaY-1),
-                image = ICON["fishing"],
-                tag="icon",anchor=tk.NW
-                )
-            print(f"you can fishing @({charaX+moveX},{charaY+moveY})")
+    # 移動先がマップ範囲内ならば
+    if (0 <= y+moveY < len(DEFAULT_MAP)) and (0 <= x+moveX < len(DEFAULT_MAP[0])):
+        #前のマスが釣り可能ならば
+        if(FISHING_PERMIT[DEFAULT_MAP[y+moveY][x+moveX]]):
+            setIcon(x,y,"fishing")
+            print(f"you can fishing @({x+moveX},{y+moveY})")
             fishFlag = True
         else:
             fishFlag = False
@@ -155,21 +161,21 @@ FISH_RATE = [70,25,5] #魚の排出割合
 LOW_RARE_FISH = [
         {
         "name":"イワシ",
-        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/iwashi.png")),
+        "img":tk.PhotoImage(file = cwd+"/img/iwashi.png"),
         "aveWeight":0.12, #平均重量
         "stDev":0.02, #標準偏差(最大、最小重量≒aveWeight±stDev*2)
         "price":60 #kg単価
         },
         {
         "name":"アジ",
-        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png")),
+        "img":tk.PhotoImage(file = cwd+"/img/aji.png"),
         "aveWeight":0.17,
         "stDev":0.04, 
         "price":100
         },
         {
         "name":"サバ",
-        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/saba.png")),
+        "img":tk.PhotoImage(file = cwd+"/img/saba.png"),
         "aveWeight":0.35,
         "stDev":0.13, 
         "price":50
@@ -178,21 +184,21 @@ LOW_RARE_FISH = [
 MIDDLE_RARE_FISH = [
         {
         "name":"タチウオ",
-        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/tachiuo.png")),
+        "img":tk.PhotoImage(file = cwd+"/img/tachiuo.png"),
         "aveWeight":3,
         "stDev":1, 
         "price":12
         },
         {
         "name":"カワハギ",
-        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/kawahagi.png")),
+        "img":tk.PhotoImage(file = cwd+"/img/kawahagi.png"),
         "aveWeight":0.4,
         "stDev":0.1, 
         "price":80
         },
         {
         "name":"メバル",
-        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/mebaru.png")),
+        "img":tk.PhotoImage(file = cwd+"/img/mebaru.png"),
         "aveWeight":0.43,
         "stDev":0.14, 
         "price":100
@@ -201,21 +207,21 @@ MIDDLE_RARE_FISH = [
 HIGH_RARE_FISH = [
         {
         "name":"タイ",
-        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png")),
+        "img":tk.PhotoImage(file = cwd+"/img/aji.png"),
         "aveWeight":5.4,
         "stDev":2.3, 
         "price":20
         },
         {
         "name":"スズキ",
-        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png")),
+        "img":tk.PhotoImage(file = cwd+"/img/aji.png"),
         "aveWeight":5.5,
         "stDev":2.25, 
         "price":19
         },
         {
         "name":"カサゴ",
-        "img":ImageTk.PhotoImage(Image.open(cwd+"/img/aji.png")),
+        "img":tk.PhotoImage(file = cwd+"/img/aji.png"),
         "aveWeight":1.65,
         "stDev":0.58, 
         "price":65
@@ -227,6 +233,7 @@ FISH_LIST.append(MIDDLE_RARE_FISH)
 FISH_LIST.append(HIGH_RARE_FISH)
 
 
+#>>セーブデータ>>
 try:
     with open(cwd + "/save/savedata.json") as f:
         saveData = json.load(f)
@@ -310,7 +317,60 @@ except:
         "y":3,
         "d":0
     }
+
+#ゲームの情報をjsonファイルにセーブする関数
+def saveGame():
+    saveData["x"] = charaX
+    saveData["y"] = charaY
+    saveData["d"] = charaD 
+    with open(cwd + "/save/savedata.json",'w') as f:
+        json.dump(saveData,f,indent=2)
+
+# >>釣り結果表示>>
+RESULT_X = 300
+RESULT_Y = 200
+RESULT_SIZE = f"{RESULT_X}x{RESULT_Y}+{int((CANVAS_WIDTH - RESULT_X)/2)}+{int((CANVAS_HEIGHT - RESULT_Y)/2)}"
+
+
+def showResultWindow(fish,rank,weight,price):
+    global resultWindow,saveData,FISH_LIST
+    #ウィンドウ設置
+    resultWindow = tk.Tk()
+    resultWindow.title("Result")
+    resultWindow.geometry(RESULT_SIZE)
+    resultWindow.resizable(False,False)
+    resultWindow.configure(bg="burlywood")
     
+    
+    # フレームの作成と設置
+    nameFrame = tk.Frame(resultWindow , relief=tk.RAISED , bg="burlywood")
+    canvasFrame = tk.Frame(resultWindow , relief=tk.RAISED , bg="burlywood")
+    infoFrame = tk.Frame(resultWindow , relief=tk.RAISED , bg="burlywood")
+    nameFrame.pack(fill = tk.BOTH, pady=10)
+    canvasFrame.pack(fill = tk.BOTH, pady=0)
+    infoFrame.pack(fill = tk.BOTH, pady=10)
+    
+    if(rank == "silver"):
+        name = "大物の"+fish
+        color = "LightBlue4"
+    elif(rank == "gold"):
+        name = "超大物の"+fish
+        color = "gold"
+    else:
+        name = fish
+        color = "DarkOrange4"
+    
+    viewCanvas = tk.Canvas(canvasFrame,width = 96,height = 48,bg = "burlywood")
+    viewCanvas.pack()
+    #viewCanvas.create_image(48,24,image =img,tag="fish",anchor=tk.CENTER)
+    
+    # 各種ウィジェットの作成
+    fishName = tk.Label(nameFrame, text=name, font=("MSゴシック", "20", "bold"),fg = color,bg = "burlywood")
+    fishWeight = tk.Label(infoFrame, text=str(weight)+" kg", font=("MSゴシック", "16"),bg = "burlywood")
+    fishPrice = tk.Label(infoFrame, text=str(price)+" G", font=("MSゴシック", "16"),bg = "burlywood")
+    fishName.pack()
+    fishWeight.pack()
+    fishPrice.pack()
 
 #>>キャラクター>>
 CHARA_WIDTH = 64  #キャラの幅
@@ -432,16 +492,16 @@ def getRodCoord(x,y,d,isRandom = False):
     
     return((x)*CHIP_SIZE_X + dx, (y-0.5)*CHIP_SIZE_Y +dy)
 
-def saveGame():
-    saveData["x"] = charaX
-    saveData["y"] = charaY
-    saveData["d"] = charaD 
-    with open(cwd + "/save/savedata.json",'w') as f:
-        json.dump(saveData,f,indent=2)
+#釣り竿を描写する関数
+def setLod(x,y,d,frame):
+    #釣り竿を削除して再描写
+    canvas.delete("rod")
+    canvas.create_image(getRodCoord(x,y,d),image = ROD[d][frame],tag="rod",anchor=tk.NW)
 
-#ゲームのメインループ関数
+
+#>>ゲームのメインループ関数>>
 def gameLoop():
-    global charaX,charaY,charaD,saveData,dashFlag,moveCount,moveX,moveY,flag,key,currentKey,prevKey,speed,waitTick,fishingCount
+    global charaX,charaY,charaD,saveData,dashFlag,moveCount,moveX,moveY,flag,key,currentKey,prevKey,speed,waitTick,fishingCount,resultWindow
     
     lastKey = len(key) - 1 #最後に押されたキーの配列番号
     speed = 1
@@ -543,9 +603,7 @@ def gameLoop():
         if(key.count(32) and not prevKey.count(32) and  fishingCount): 
             setChara(charaX,charaY,charaD,1,"walk")
             canvas.delete("rod")
-            #アイコン描写
-            canvas.delete("icon")
-            canvas.create_image(getRealCoord(charaX,charaY-1),image = ICON["miss"],tag="icon",anchor=tk.NW)
+            setIcon(charaX,charaY,"miss")#アイコン描写
             print("早すぎた！")
             flag = "defalt"
             
@@ -557,9 +615,7 @@ def gameLoop():
             #釣りの姿勢から歩行姿勢に戻す
             setChara(charaX,charaY,charaD,1,"walk")
             canvas.delete("rod")
-            #アイコン描写
-            canvas.delete("icon")
-            canvas.create_image(getRealCoord(charaX,charaY-1),image = ICON["miss"],tag="icon",anchor=tk.NW)
+            setIcon(charaX,charaY,"miss")#アイコン描写
             print("早すぎた！")
             flag = "defalt"
         elif(fishingCount == 0):#初回なら
@@ -580,9 +636,7 @@ def gameLoop():
     elif (flag == "hit"): #魚がかかったとき
         if(key.count(32)):  #スペースキー押下されたとき
             flag = "fight"
-            #アイコン描写
-            canvas.delete("icon")
-            canvas.create_image(getRealCoord(charaX,charaY-1),image = ICON["fight"],tag="icon",anchor=tk.NW)
+            setIcon(charaX,charaY,"fight")#アイコン描写
             fishingCount = 0
         elif(fishingCount == 0):#初回なら
             #キャラクター再描写
@@ -590,18 +644,14 @@ def gameLoop():
             #釣り竿再描写
             canvas.delete("rod")
             canvas.create_image(getRodCoord(charaX,charaY,charaD),image = ROD[charaD][2],tag="rod",anchor=tk.NW)
-            #アイコン描写
-            canvas.delete("icon")
-            canvas.create_image(getRealCoord(charaX,charaY-1),image = ICON["hit"],tag="icon",anchor=tk.NW)
+            setIcon(charaX,charaY,"hit")#アイコン描写
             print("ビク！")
         elif(fishingCount == waitTick):#待ち時間を終えたとき
             print("遅すぎた！")
             #釣りの姿勢から歩行姿勢に戻す
             setChara(charaX,charaY,charaD,1,"walk")
             canvas.delete("rod")
-            #アイコン描写
-            canvas.delete("icon")
-            canvas.create_image(getRealCoord(charaX,charaY-1),image = ICON["miss"],tag="icon",anchor=tk.NW)
+            setIcon(charaX,charaY,"miss")#アイコン描写
             flag = "defalt"
         
         if (flag == "hit"):
@@ -662,10 +712,9 @@ def gameLoop():
         canvas.delete("rod")
         #*魚を仮表示
         canvas.delete("fish")
-        canvas.create_image(getCharaCoord(charaX,charaY),image = selectedFish["img"],tag="fish",anchor=tk.NW)
-        #アイコン描写
-        canvas.delete("icon")
-        canvas.create_image(getRealCoord(charaX,charaY-1),image = ICON["success"],tag="icon",anchor=tk.NW)
+        canvas.create_image(getCharaCoord(charaX,charaY+0.75),image = selectedFish["img"],tag="fish",anchor=tk.NW)
+        setIcon(charaX,charaY,"success")#アイコン描写
+        showResultWindow(selectedFish["name"],fishRank,fishWeight,fishPrice)
         flag = "result"
         
     elif(flag == "result"): #結果表示中のとき
@@ -673,6 +722,7 @@ def gameLoop():
             flag = "defalt"
             canvas.delete("fish")
             setFishingIcon(charaX,charaY,moveX,moveY)
+            resultWindow.destroy()
     
     prevKey = copy.deepcopy(key)
     key = copy.deepcopy(currentKey)
