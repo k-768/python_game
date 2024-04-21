@@ -116,6 +116,7 @@ ICON = {
     "fishing" : ImageTk.PhotoImage(Image.open(cwd+"/img/fishing.png")),
     "hit" : ImageTk.PhotoImage(Image.open(cwd+"/img/hit.png")),
     "miss" : ImageTk.PhotoImage(Image.open(cwd+"/img/miss.png")),
+    "fight" : ImageTk.PhotoImage(Image.open(cwd+"/img/fight.png")),
     "success" : ImageTk.PhotoImage(Image.open(cwd+"/img/success.png")),
 }
 
@@ -579,6 +580,9 @@ def gameLoop():
     elif (flag == "hit"): #魚がかかったとき
         if(key.count(32)):  #スペースキー押下されたとき
             flag = "fight"
+            #アイコン描写
+            canvas.delete("icon")
+            canvas.create_image(getRealCoord(charaX,charaY-1),image = ICON["fight"],tag="icon",anchor=tk.NW)
             fishingCount = 0
         elif(fishingCount == 0):#初回なら
             #キャラクター再描写
