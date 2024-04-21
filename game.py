@@ -10,10 +10,10 @@ from PIL import Image,ImageTk
 
 #---------------------------------
 #Fishing Game for Python learning
-#version: 0.90
+#version: 0.91
 #last update: 2024/04/21
 #latest information:
-#・The result window is displayed.
+#・Fishing rods can be upgraded.
 #author: k-768
 #---------------------------------
 
@@ -37,7 +37,7 @@ CANVAS_SIZE = f"{CANVAS_WIDTH+MARGINE_X}x{CANVAS_HEIGHT+MARGINE_Y}"#キャンバ
 
 #ウィンドウ設置
 root = tk.Tk()
-root.title("Sample Game ver0.81")
+root.title("Sample Game ver0.91")
 root.geometry(CANVAS_SIZE)
 
 #キャンバス設置
@@ -157,25 +157,42 @@ def setFishingIcon(x,y,moveX,moveY):
 
 #>>魚>>
 fishFlag = False #釣り可能かどうか
-FISH_RATE = [70,25,5] #魚の排出割合
+
+#魚の排出割合
+def fishRate(lv):
+    return([100-5*lv,4*lv,lv]) 
+
+FISH_IMAGE = {
+    "イワシ":tk.PhotoImage(file = cwd+"/img/iwashi.png"),
+    "アジ":tk.PhotoImage(file = cwd+"/img/aji.png"),
+    "サバ":tk.PhotoImage(file = cwd+"/img/saba.png"),
+    "タチウオ":tk.PhotoImage(file = cwd+"/img/tachiuo.png"),
+    "カワハギ":tk.PhotoImage(file = cwd+"/img/kawahagi.png"),
+    "メバル":tk.PhotoImage(file = cwd+"/img/mebaru.png"),
+    "タイ":tk.PhotoImage(file = cwd+"/img/iwashi.png"),
+    "スズキ":tk.PhotoImage(file = cwd+"/img/iwashi.png"),
+    "カサゴ":tk.PhotoImage(file = cwd+"/img/iwashi.png"),
+}
+BIG_FISH_IMAGE = {key :img.zoom(2,2) for key , img in FISH_IMAGE.items()}
+
 LOW_RARE_FISH = [
         {
         "name":"イワシ",
-        "img":tk.PhotoImage(file = cwd+"/img/iwashi.png"),
+        "img":FISH_IMAGE["イワシ"],
         "aveWeight":0.12, #平均重量
         "stDev":0.02, #標準偏差(最大、最小重量≒aveWeight±stDev*2)
         "price":60 #kg単価
         },
         {
         "name":"アジ",
-        "img":tk.PhotoImage(file = cwd+"/img/aji.png"),
+        "img":FISH_IMAGE["アジ"],
         "aveWeight":0.17,
         "stDev":0.04, 
         "price":100
         },
         {
         "name":"サバ",
-        "img":tk.PhotoImage(file = cwd+"/img/saba.png"),
+        "img":FISH_IMAGE["サバ"],
         "aveWeight":0.35,
         "stDev":0.13, 
         "price":50
@@ -184,21 +201,21 @@ LOW_RARE_FISH = [
 MIDDLE_RARE_FISH = [
         {
         "name":"タチウオ",
-        "img":tk.PhotoImage(file = cwd+"/img/tachiuo.png"),
+        "img":FISH_IMAGE["タチウオ"],
         "aveWeight":3,
         "stDev":1, 
         "price":12
         },
         {
         "name":"カワハギ",
-        "img":tk.PhotoImage(file = cwd+"/img/kawahagi.png"),
+        "img":FISH_IMAGE["カワハギ"],
         "aveWeight":0.4,
         "stDev":0.1, 
         "price":80
         },
         {
         "name":"メバル",
-        "img":tk.PhotoImage(file = cwd+"/img/mebaru.png"),
+        "img":FISH_IMAGE["メバル"],
         "aveWeight":0.43,
         "stDev":0.14, 
         "price":100
@@ -207,21 +224,21 @@ MIDDLE_RARE_FISH = [
 HIGH_RARE_FISH = [
         {
         "name":"タイ",
-        "img":tk.PhotoImage(file = cwd+"/img/aji.png"),
+        "img":FISH_IMAGE["タイ"],
         "aveWeight":5.4,
         "stDev":2.3, 
         "price":20
         },
         {
         "name":"スズキ",
-        "img":tk.PhotoImage(file = cwd+"/img/aji.png"),
+        "img":FISH_IMAGE["スズキ"],
         "aveWeight":5.5,
         "stDev":2.25, 
         "price":19
         },
         {
         "name":"カサゴ",
-        "img":tk.PhotoImage(file = cwd+"/img/aji.png"),
+        "img":FISH_IMAGE["カサゴ"],
         "aveWeight":1.65,
         "stDev":0.58, 
         "price":65
@@ -315,7 +332,8 @@ except:
         "money":0,
         "x":3,
         "y":3,
-        "d":0
+        "d":0,
+        "lv":0
     }
 
 #ゲームの情報をjsonファイルにセーブする関数
@@ -326,6 +344,16 @@ def saveGame():
     with open(cwd + "/save/savedata.json",'w') as f:
         json.dump(saveData,f,indent=2)
 
+def lvUp():
+    global saveData
+    if(saveData["lv"] <= 10):
+        if(saveData["money"] >= 30+30*saveData["lv"]):
+            saveData["money"] -= 30+30*saveData["lv"]
+            saveData["lv"] += 1
+            print("Lv."+str(saveData["lv"])+"に上がった")
+            money.set(str(saveData["money"])+"G")
+            saveGame()
+
 # >>釣り結果表示>>
 RESULT_X = 300
 RESULT_Y = 200
@@ -333,9 +361,9 @@ RESULT_SIZE = f"{RESULT_X}x{RESULT_Y}+{int((CANVAS_WIDTH - RESULT_X)/2)}+{int((C
 
 
 def showResultWindow(fish,rank,weight,price):
-    global resultWindow,saveData,FISH_LIST
+    global resultWindow,saveData,FISH_IMAGE
     #ウィンドウ設置
-    resultWindow = tk.Tk()
+    resultWindow = tk.Toplevel()
     resultWindow.title("Result")
     resultWindow.geometry(RESULT_SIZE)
     resultWindow.resizable(False,False)
@@ -360,17 +388,20 @@ def showResultWindow(fish,rank,weight,price):
         name = fish
         color = "DarkOrange4"
     
-    viewCanvas = tk.Canvas(canvasFrame,width = 96,height = 48,bg = "burlywood")
+    viewCanvas = tk.Canvas(canvasFrame,width = 96,height = 48,bg = "burlywood",highlightthickness=0)
     viewCanvas.pack()
-    #viewCanvas.create_image(48,24,image =img,tag="fish",anchor=tk.CENTER)
+    viewCanvas.create_image(48,24,image =BIG_FISH_IMAGE[fish],tag="view",anchor=tk.CENTER)
     
     # 各種ウィジェットの作成
     fishName = tk.Label(nameFrame, text=name, font=("MSゴシック", "20", "bold"),fg = color,bg = "burlywood")
+    record = tk.Label(nameFrame, text="Record!!", font=("MSゴシック", "16"),fg = "red3",bg = "burlywood")
     fishWeight = tk.Label(infoFrame, text=str(weight)+" kg", font=("MSゴシック", "16"),bg = "burlywood")
     fishPrice = tk.Label(infoFrame, text=str(price)+" G", font=("MSゴシック", "16"),bg = "burlywood")
     fishName.pack()
     fishWeight.pack()
     fishPrice.pack()
+    if(weight == saveData[fish]["maxWeight"]):
+        record.pack()
 
 #>>キャラクター>>
 CHARA_WIDTH = 64  #キャラの幅
@@ -668,7 +699,7 @@ def gameLoop():
     
     elif(flag == "success"): #釣りに成功したとき
         #ランダムな魚を選択
-        selectedFish = random.choice((random.choices(FISH_LIST,k=1,weights = FISH_RATE))[0])
+        selectedFish = random.choice((random.choices(FISH_LIST,k=1,weights = fishRate(saveData["lv"])))[0])
         print(selectedFish["name"])
         #魚の重さを決定(正規分布に従う)
         rng = numpy.random.default_rng()
@@ -712,9 +743,10 @@ def gameLoop():
         canvas.delete("rod")
         #*魚を仮表示
         canvas.delete("fish")
-        canvas.create_image(getCharaCoord(charaX,charaY+0.75),image = selectedFish["img"],tag="fish",anchor=tk.NW)
+        canvas.create_image(getCharaCoord(charaX+0.5,charaY+1),image = selectedFish["img"],tag="fish",anchor=tk.CENTER)
         setIcon(charaX,charaY,"success")#アイコン描写
         showResultWindow(selectedFish["name"],fishRank,fishWeight,fishPrice)
+        lvUp()
         flag = "result"
         
     elif(flag == "result"): #結果表示中のとき
