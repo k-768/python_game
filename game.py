@@ -10,10 +10,10 @@ from PIL import Image,ImageTk
 
 #---------------------------------
 #Fishing Game for Python learning
-#version: 0.91
-#last update: 2024/04/21
+#version: 0.92
+#last update: 2024/04/23
 #latest information:
-#・Fishing rods can be upgraded.
+#・Fixed some bugs
 #author: k-768
 #---------------------------------
 
@@ -37,7 +37,7 @@ CANVAS_SIZE = f"{CANVAS_WIDTH+MARGINE_X}x{CANVAS_HEIGHT+MARGINE_Y}"#キャンバ
 
 #ウィンドウ設置
 root = tk.Tk()
-root.title("Sample Game ver0.91")
+root.title("Sample Game ver0.92")
 root.geometry(CANVAS_SIZE)
 
 #キャンバス設置
@@ -352,6 +352,7 @@ def lvUp():
             saveData["lv"] += 1
             print("Lv."+str(saveData["lv"])+"に上がった")
             money.set(str(saveData["money"])+"G")
+            lv.set("Lv, "+ str(saveData["lv"]))
             saveGame()
 
 # >>釣り結果表示>>
@@ -761,8 +762,11 @@ def gameLoop():
     root.after(round(TICK_TIME/speed),gameLoop)
 
 #所持金が変更されたとき呼び出され、表示を変更する
-def on_change(varname, index, mode):
+def onMoneyChange(varname, index, mode):
     canvas.itemconfigure(money_text, text=root.getvar(varname))
+
+def onLvChange(varname, index, mode):
+    canvas.itemconfigure(lv_text, text=root.getvar(varname))
 
 #>>キー監視>>
 currentKey = []#現在押されているキー
@@ -792,9 +796,13 @@ root.bind("<KeyRelease>", release)
 mapping()
 canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP[0][1],tag="chara",anchor=tk.NW)
 
+#>>情報表示
+lv = tk.StringVar(root,"Lv. "+str(saveData["lv"]))
+lv.trace_add('write', onLvChange)
+lv_text = canvas.create_text(CHIP_SIZE_X*(X_MAPSIZE-1),30, fill = "brown",font = ("System",24), text = lv.get(), tag = "lv")
 money = tk.StringVar(root,str(saveData["money"])+"G")
-money.trace_add('write', on_change)
-money_text = canvas.create_text(50,30, fill = "brown",font = ("System",24), text = money.get(), tag = "money")
+money.trace_add('write', onMoneyChange)
+money_text = canvas.create_text(CHIP_SIZE_X*(X_MAPSIZE-1),80, fill = "brown",font = ("System",24), text = money.get(), tag = "money")
 
 gameLoop()
 print("start!")

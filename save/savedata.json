@@ -1,51 +1,51 @@
 {
   "\u30a4\u30ef\u30b7": {
-    "count": 7,
-    "maxWeight": 0.06,
-    "bronze": true,
-    "silver": true,
-    "gold": false,
-    "totalWeight": 0.83
-  },
-  "\u30a2\u30b8": {
-    "count": 12,
+    "count": 1,
     "maxWeight": 0.12,
     "bronze": true,
     "silver": false,
     "gold": false,
-    "totalWeight": 1.96
+    "totalWeight": 0.12
+  },
+  "\u30a2\u30b8": {
+    "count": 0,
+    "maxWeight": 0,
+    "bronze": false,
+    "silver": false,
+    "gold": false,
+    "totalWeight": 0
   },
   "\u30b5\u30d0": {
-    "count": 8,
-    "maxWeight": 0.16,
+    "count": 2,
+    "maxWeight": 0.52,
     "bronze": true,
-    "silver": true,
+    "silver": false,
     "gold": false,
-    "totalWeight": 2.66
+    "totalWeight": 0.72
   },
   "\u30bf\u30c1\u30a6\u30aa": {
     "count": 1,
-    "maxWeight": 1.48,
+    "maxWeight": 3.76,
     "bronze": true,
     "silver": false,
     "gold": false,
-    "totalWeight": 3.48
+    "totalWeight": 3.76
   },
   "\u30ab\u30ef\u30cf\u30ae": {
-    "count": 2,
-    "maxWeight": 0.25,
-    "bronze": true,
+    "count": 0,
+    "maxWeight": 0,
+    "bronze": false,
     "silver": false,
     "gold": false,
-    "totalWeight": 0.9500000000000001
+    "totalWeight": 0
   },
   "\u30e1\u30d0\u30eb": {
-    "count": 1,
-    "maxWeight": 0.17,
-    "bronze": true,
+    "count": 0,
+    "maxWeight": 0,
+    "bronze": false,
     "silver": false,
     "gold": false,
-    "totalWeight": 0.17
+    "totalWeight": 0
   },
   "\u30bf\u30a4": {
     "count": 0,
@@ -56,12 +56,12 @@
     "totalWeight": 0
   },
   "\u30b9\u30ba\u30ad": {
-    "count": 1,
-    "maxWeight": 3.57,
-    "bronze": true,
+    "count": 0,
+    "maxWeight": 0,
+    "bronze": false,
     "silver": false,
     "gold": false,
-    "totalWeight": 3.57
+    "totalWeight": 0
   },
   "\u30ab\u30b5\u30b4": {
     "count": 0,
@@ -71,9 +71,9 @@
     "gold": false,
     "totalWeight": 0
   },
-  "money": 126,
-  "x": 5,
-  "y": 5,
-  "d": 2,
-  "lv": 5
+  "money": 58,
+  "x": 3,
+  "y": 6,
+  "d": 0,
+  "lv": 1
 }
