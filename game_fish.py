@@ -21,8 +21,8 @@ cwd = os.getcwd()
 
 
 #>>マップ設定>>
-MAP_SIZE_X = 192  #マップ画像のxピクセル数
-MAP_SIZE_Y = 192  #マップ画像のyピクセル数
+MAP_SIZE_X = 384  #マップ画像のxピクセル数
+MAP_SIZE_Y = 384  #マップ画像のyピクセル数
 
 
 MAGNIFICATION_RATE = 2 # 拡大率
@@ -55,8 +55,8 @@ CHARA_WIDTH = 64  #キャラの幅
 CHARA_HEIGHT = 96 #キャラの高さ
 
 #キャラクターの座標
-charaX = 72 * MAGNIFICATION_RATE 
-charaY = 64 * MAGNIFICATION_RATE
+charaX = 160 * MAGNIFICATION_RATE 
+charaY = 128 * MAGNIFICATION_RATE
 flag = "defalt"
 '''
 defalt:通常状態
@@ -110,7 +110,7 @@ ICON = {
     "success":tk.PhotoImage(file = cwd+"/img/success.png"),
 }
 
-BIG_ICON = {key :img.zoom(MAGNIFICATION_RATE//2,MAGNIFICATION_RATE//2) for key , img in ICON.items()}
+BIG_ICON = {key :img.zoom(MAGNIFICATION_RATE//1,MAGNIFICATION_RATE//1) for key , img in ICON.items()}
 
 
 
@@ -124,8 +124,8 @@ def setIcon(x,y,type):
     # 一回消して再描写
     canvas.delete("icon")
     canvas.create_image(
-        x+CHARA_WIDTH*MAGNIFICATION_RATE/4,
-        y-CHARA_HEIGHT*MAGNIFICATION_RATE/8,
+        x+CHARA_WIDTH*MAGNIFICATION_RATE/16,
+        y-CHARA_HEIGHT*MAGNIFICATION_RATE/2,
         image = BIG_ICON[type],
         tag="icon",
         anchor=tk.NW
@@ -286,7 +286,7 @@ def gameLoop():
             #キャラクター再描写
             setChara(charaX,charaY,"wait")
         elif(fishingCount >= waitTick):#待ち時間を終えたとき
-            if(random.randint(1,3)==1):#1/3の確率で
+            if(random.randint(1,3)!=1):#2/3の確率で
                 flag = "hit"
                 waitTick = 10
                 fishingCount = 0
@@ -340,7 +340,7 @@ def gameLoop():
     
     elif (flag == "fight"): #かかった魚を釣り上げているとき
         if(fishingCount < 20):
-            if((fishingCount//2)%2):
+            if(fishingCount%4 == 0 or fishingCount%4 == 1 ):
                 setChara(charaX,charaY,"hit")
             else:
                 setChara(charaX,charaY,"fight")

@@ -519,7 +519,7 @@ def getRodCoord(x,y,d,isRandom = False):
         y -= 1
     
     if(isRandom):
-        dx = random.randint(0,2) -1
+        dx = random.randint(0,2) -1 #-1,0,1のいずれか
         dy = random.randint(0,2) -1
     
     return((x)*CHIP_SIZE_X + dx, (y-0.5)*CHIP_SIZE_Y +dy)
@@ -549,7 +549,6 @@ def gameLoop():
                 canvas.delete("icon")#釣りアイコン削除
                 flag = "wait"
                 waitTick = random.randint(round(3000/TICK_TIME),round(5000/TICK_TIME))#3-5秒
-
                 fishingCount = 0
         
         if(key.count(16)):#Shiftキーが押されているならダッシュ
