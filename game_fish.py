@@ -1,18 +1,14 @@
 import copy
-import json
 import os
 import random
 import sys
 import tkinter as tk
-from PIL import Image,ImageTk
 
 
 #---------------------------------
 #Fishing Game for Python learning (Only Fishing)
-#version: b0.1
-#last update: 2024/10/21
-#latest information:
-#・Fixed some bugs
+#version: b-0.2
+#last update: 2024/10/25
 #author: k-768
 #---------------------------------
 
@@ -23,7 +19,6 @@ cwd = os.getcwd()
 #>>マップ設定>>
 MAP_SIZE_X = 384  #マップ画像のxピクセル数
 MAP_SIZE_Y = 384  #マップ画像のyピクセル数
-
 
 MAGNIFICATION_RATE = 2 # 拡大率
 
@@ -305,7 +300,7 @@ def gameLoop():
             fishingCount += 1
     
     elif (flag == "bite"): #魚が少し喰いついたとき
-        if(key.count(32)):  #スペースキー押下されたとき
+        if(key.count(32) and not prevKey.count(32)):  #スペースキー押下されたとき
             setIcon(charaX,charaY,"miss")#アイコン描写
             print("早すぎた！")
             flag = "defalt"
@@ -321,7 +316,7 @@ def gameLoop():
             fishingCount += 1
     
     elif (flag == "hit"): #魚がかかったとき
-        if(key.count(32)):  #スペースキー押下されたとき
+        if(key.count(32) and not prevKey.count(32)):  #スペースキー押下されたとき
             flag = "fight"
             setIcon(charaX,charaY,"fight")#アイコン描写
             fishingCount = 0
@@ -381,7 +376,7 @@ def gameLoop():
         flag = "result"
         
     elif(flag == "result"): #結果表示中のとき
-        if(key.count(32)):  #スペースキー押下されたとき
+        if(key.count(32) and not prevKey.count(32)):  #スペースキー押下されたとき
             flag = "defalt"
             canvas.delete("fish")
             setIcon(charaX,charaY,"fishing")

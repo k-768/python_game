@@ -673,7 +673,7 @@ def gameLoop():
             fishingCount += 1
     
     elif (flag == "bite"): #魚が少し喰いついたとき
-        if(key.count(32)):  #スペースキー押下されたとき
+        if(key.count(32) and not prevKey.count(32)):  #スペースキー押下されたとき
             #釣りの姿勢から歩行姿勢に戻す
             setChara(charaX,charaY,charaD,1,"walk")
             canvas.delete("rod")
@@ -696,7 +696,7 @@ def gameLoop():
             fishingCount += 1
     
     elif (flag == "hit"): #魚がかかったとき
-        if(key.count(32)):  #スペースキー押下されたとき
+        if(key.count(32) and not prevKey.count(32)):  #スペースキー押下されたとき
             flag = "fight"
             setIcon(charaX,charaY,"fight")#アイコン描写
             fishingCount = 0
@@ -778,7 +778,7 @@ def gameLoop():
         flag = "result"
         
     elif(flag == "result"): #結果表示中のとき
-        if(key.count(32)):  #スペースキー押下されたとき
+        if(key.count(32) and not prevKey.count(32)):  #スペースキー押下されたとき
             flag = "defalt"
             canvas.delete("fish")
             setFishingIcon(charaX,charaY,moveX,moveY)
