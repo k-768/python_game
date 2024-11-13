@@ -411,7 +411,7 @@ root.bind("<KeyPress>", press)
 root.bind("<KeyRelease>", release)
 
 #>>メインループ>>>
-canvas.create_image(0,0,image = MAP_BIG_IMAGE ,tag="bgi",anchor=tk.NW)
+canvas.create_image(0,0,image = MAP_BIG_IMAGE ,tag="bgimage",anchor=tk.NW)
 setChara(charaX,charaY,"defalt")
 setIcon(charaX,charaY,"fishing")
 
