@@ -545,7 +545,7 @@ def gameLoop():
     
     if (flag == "defalt"): #待機中のとき 
         if(fishFlag):#魚釣り可能な場所でSpaceが押されたら釣り開始
-            if(key.count("space") and (not prevKey.count("space"))):
+            if(("space" in key) and ("space" not in prevKey)):
                 canvas.delete("icon")#釣りアイコン削除
                 flag = "wait"
                 waitTick = random.randint(round(3000/TICK_TIME),round(5000/TICK_TIME))#3-5秒
@@ -631,7 +631,7 @@ def gameLoop():
                 fishingCount = 0
         
         # スペースキーが再び押された時
-        if(key.count("space") and not prevKey.count("space") and  fishingCount): 
+        if(("space" in key) and ("space" not in prevKey) and  fishingCount): 
             setChara(charaX,charaY,charaD,1,"walk")
             canvas.delete("rod")
             setIcon(charaX,charaY,"miss")#アイコン描写
@@ -642,7 +642,7 @@ def gameLoop():
             fishingCount += 1
     
     elif (flag == "bite"): #魚が少し喰いついたとき
-        if(key.count("space")):  #スペースキー押下されたとき
+        if("space" in key):  #スペースキー押下されたとき
             #釣りの姿勢から歩行姿勢に戻す
             setChara(charaX,charaY,charaD,1,"walk")
             canvas.delete("rod")
@@ -665,7 +665,7 @@ def gameLoop():
             fishingCount += 1
     
     elif (flag == "hit"): #魚がかかったとき
-        if(key.count("space")):  #スペースキー押下されたとき
+        if("space" in key):  #スペースキー押下されたとき
             flag = "fight"
             setIcon(charaX,charaY,"fight")#アイコン描写
             fishingCount = 0
@@ -750,7 +750,7 @@ def gameLoop():
         flag = "result"
         
     elif(flag == "result"): #結果表示中のとき
-        if(key.count("space")):  #スペースキー押下されたとき
+        if(("space" in key)):  #スペースキー押下されたとき
             flag = "defalt"
             canvas.delete("fish")
             setFishingIcon(charaX,charaY,moveX,moveY)

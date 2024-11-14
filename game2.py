@@ -566,49 +566,53 @@ def setLod(x,y,d,frame):
 def gameLoop():
     global charaX,charaY,charaD,saveData,dashFlag,moveCount,moveX,moveY,flag,key,currentKey,prevKey,speed,waitTick,fishingCount,resultWindow
     
-    lastKey = len(key) - 1 #最後に押されたキーの配列番号
+    if (len(key)> 0):
+        lastKey = key[len(key) - 1] #最後に押されたキー
+    else:
+        lastKey = ""
+    
     speed = 1
     
     #Ctrl+Cが押されたとき、セーブして終了
-    if(key.count("Control_L") and key.count("c")):
+    if("Control_L" in key and "c" in key):
         saveGame()
         sys.exit()
     
     if (flag == "defalt"): #待機中のとき 
         if(fishFlag):#魚釣り可能な場所でSpaceが押されたら釣り開始
-            if(key.count("space") and (not prevKey.count("space"))):
+            if(("space" in key) and ("space" not in prevKey)):
                 canvas.delete("icon")#釣りアイコン削除
                 flag = "wait"
                 waitTick = random.randint(round(3000/TICK_TIME),round(5000/TICK_TIME))#3-5秒
                 fishingCount = 0
         
-        if(key.count("Shift_L")):#Shiftキーが押されているならダッシュ
+        if("Shift_L" in key):#Shiftキーが押されているならダッシュ
             dashFlag = True
-            if(key.index("Shift_L") == lastKey):
-                lastKey -= 1
+            if(lastKey == "Shift_L"):
+                lastKey = key[len(key) - 2]
         else:
             dashFlag = False
         
         if(len(key)): #SHIFT以外の何かのキーが押されているとき
-            if(key[lastKey]=="s" or key[lastKey]=="Down"):#下入力
+            if(lastKey=="s" or lastKey=="Down"):#下入力
                 flag = "move"
                 charaD = 0
                 moveX = 0
                 moveY = 1
                 print("↓")
-            elif(key[lastKey]=="a" or key[lastKey]=="Left"):#左入力
+            elif(lastKey=="a" or lastKey=="Left"):#左入力
                 flag = "move"
                 charaD = 1
                 moveX = -1
                 moveY = 0
                 print("←")
-            elif(key[lastKey]=="d" or key[lastKey]=="Right"):#右入力
+            elif(lastKey=="d" or lastKey=="Right"):#右入力
                 flag = "move"
                 charaD = 2
                 moveX = 1
                 moveY = 0
                 print("→")
-            elif(key[lastKey]=="w" or key[lastKey]=="Up"):#上入力
+            elif(lastKey=="w" or lastKey=="Up"):#上入力
                 flag = "move"
                 charaD = 3
                 moveX = 0
@@ -662,7 +666,7 @@ def gameLoop():
                 fishingCount = 0
         
         # スペースキーが再び押された時
-        if(key.count("space") and not prevKey.count("space") and  fishingCount): 
+        if(("space" in key) and ("space" not in prevKey) and  fishingCount): 
             setChara(charaX,charaY,charaD,1,"walk")
             canvas.delete("rod")
             setIcon(charaX,charaY,"miss")#アイコン描写
@@ -673,7 +677,7 @@ def gameLoop():
             fishingCount += 1
     
     elif (flag == "bite"): #魚が少し喰いついたとき
-        if(key.count("space") and not prevKey.count("space")):  #スペースキー押下されたとき
+        if(("space" in key) and ("space" not in prevKey)):  #スペースキー押下されたとき
             #釣りの姿勢から歩行姿勢に戻す
             setChara(charaX,charaY,charaD,1,"walk")
             canvas.delete("rod")
@@ -696,7 +700,7 @@ def gameLoop():
             fishingCount += 1
     
     elif (flag == "hit"): #魚がかかったとき
-        if(key.count("space") and not prevKey.count("space")):  #スペースキー押下されたとき
+        if(("space" in key) and ("space" not in prevKey)):  #スペースキー押下されたとき
             flag = "fight"
             setIcon(charaX,charaY,"fight")#アイコン描写
             fishingCount = 0
@@ -778,7 +782,7 @@ def gameLoop():
         flag = "result"
         
     elif(flag == "result"): #結果表示中のとき
-        if(key.count("space") and not prevKey.count("space")):  #スペースキー押下されたとき
+        if(("space" in key) and ("space" not in prevKey)):  #スペースキー押下されたとき
             flag = "defalt"
             canvas.delete("fish")
             setFishingIcon(charaX,charaY,moveX,moveY)
@@ -803,10 +807,10 @@ prevKey = [] #前回の処理までに押されたキー
 #何かのキーが押されたときに呼び出される関数
 def press(e):
     keysym = e.keysym
-    if(not currentKey.count(keysym)):#始めて押されたならば
+    if(keysym not in currentKey):#始めて押されたならば
         currentKey.append(keysym)
         print(f"pressed:{keysym}")
-    if(not key.count(keysym)):#前回の処理から始めて押されたならば
+    if(keysym not in key):#前回の処理から始めて押されたならば
         key.append(keysym)
 
 #何かのキーが離されたときに呼び出される関数

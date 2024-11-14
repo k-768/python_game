@@ -265,12 +265,12 @@ def gameLoop():
     global charaX,charaY,flag,key,currentKey,prevKey,waitTick,fishingCount,resultWindow
     
     #Ctrl+Cが押されたとき、終了
-    if(key.count(17) and key.count(67)):
+    if("Control_L" in key and "c" in key):
         sys.exit()
     
     if (flag == "defalt"): #待機中のとき 
         setChara(charaX,charaY,"defalt")
-        if(key.count(32) and (not prevKey.count(32))):
+        if(("space" in key) and ("space" not in prevKey)):
             canvas.delete("icon")#釣りアイコン削除
             flag = "wait"
             waitTick = random.randint(round(3000/TICK_TIME),round(5000/TICK_TIME))#3-5秒
@@ -291,7 +291,7 @@ def gameLoop():
                 fishingCount = 0
         
         # スペースキーが再び押された時
-        if(key.count(32) and not prevKey.count(32) and  fishingCount): 
+        if(("space" in key) and ("space" not in prevKey) and  fishingCount): 
             setIcon(charaX,charaY,"miss")#アイコン描写
             print("早すぎた！")
             flag = "defalt"
@@ -300,7 +300,7 @@ def gameLoop():
             fishingCount += 1
     
     elif (flag == "bite"): #魚が少し喰いついたとき
-        if(key.count(32) and not prevKey.count(32)):  #スペースキー押下されたとき
+        if(("space" in key) and ("space" not in prevKey)):  #スペースキー押下されたとき
             setIcon(charaX,charaY,"miss")#アイコン描写
             print("早すぎた！")
             flag = "defalt"
@@ -316,7 +316,7 @@ def gameLoop():
             fishingCount += 1
     
     elif (flag == "hit"): #魚がかかったとき
-        if(key.count(32) and not prevKey.count(32)):  #スペースキー押下されたとき
+        if(("space" in key) and ("space" not in prevKey)):  #スペースキー押下されたとき
             flag = "fight"
             setIcon(charaX,charaY,"fight")#アイコン描写
             fishingCount = 0
@@ -376,7 +376,7 @@ def gameLoop():
         flag = "result"
         
     elif(flag == "result"): #結果表示中のとき
-        if(key.count(32) and not prevKey.count(32)):  #スペースキー押下されたとき
+        if(("space" in key) and ("space" not in prevKey)):  #スペースキー押下されたとき
             flag = "defalt"
             canvas.delete("fish")
             setIcon(charaX,charaY,"fishing")
@@ -393,12 +393,12 @@ prevKey = [] #前回の処理までに押されたキー
 
 #何かのキーが押されたときに呼び出される関数
 def press(e):
-    keycode = e.keycode
-    if(not currentKey.count(keycode)):#始めて押されたならば
-        currentKey.append(keycode)
-        print(f"pressed:{e.keysym}")
-    if(not key.count(keycode)):#前回の処理から始めて押されたならば
-        key.append(keycode)
+    keysym = e.keysym
+    if(keysym not in currentKey):#始めて押されたならば
+        currentKey.append(keysym)
+        print(f"pressed:{keysym}")
+    if(keysym not in key):#前回の処理から始めて押されたならば
+        key.append(keysym)
 
 #何かのキーが離されたときに呼び出される関数
 def release(e):
