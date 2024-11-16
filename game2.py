@@ -162,7 +162,9 @@ fishFlag = False #釣り可能かどうか
 
 #魚の排出割合
 def fishRate(lv):
-    return([100-5*lv,4*lv,lv]) 
+    return([100-5*lv,4*lv,lv])
+
+
 
 FISH_IMAGE = {
     "イワシ":tk.PhotoImage(file = cwd+"/img/iwashi.png"),
@@ -171,8 +173,8 @@ FISH_IMAGE = {
     "タチウオ":tk.PhotoImage(file = cwd+"/img/tachiuo.png"),
     "カワハギ":tk.PhotoImage(file = cwd+"/img/kawahagi.png"),
     "メバル":tk.PhotoImage(file = cwd+"/img/mebaru.png"),
-    "タイ":tk.PhotoImage(file = cwd+"/img/iwashi.png"),
-    "スズキ":tk.PhotoImage(file = cwd+"/img/iwashi.png"),
+    "タイ":tk.PhotoImage(file = cwd+"/img/tai.png"),
+    "スズキ":tk.PhotoImage(file = cwd+"/img/suzuki.png"),
     "カサゴ":tk.PhotoImage(file = cwd+"/img/iwashi.png"),
 }
 BIG_FISH_IMAGE = {key :img.zoom(2,2) for key , img in FISH_IMAGE.items()}
@@ -382,9 +384,9 @@ def showResultWindow(fish,rank,weight,price):
         name = fish
         color = "DarkOrange4"
     
-    viewCanvas = tk.Canvas(canvasFrame,width = 96,height = 48,bg = "burlywood",highlightthickness=0)
+    viewCanvas = tk.Canvas(canvasFrame,width = 192,height = 48,bg = "burlywood",highlightthickness=0)
     viewCanvas.pack()
-    viewCanvas.create_image(48,24,image =BIG_FISH_IMAGE[fish],tag="view",anchor=tk.CENTER)
+    viewCanvas.create_image(96,24,image =BIG_FISH_IMAGE[fish],tag="view",anchor=tk.CENTER)
     
     # 各種ウィジェットの作成
     fishName = tk.Label(nameFrame, text=name, font=("MSゴシック", "20", "bold"),fg = color,bg = "burlywood")
