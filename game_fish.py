@@ -142,7 +142,7 @@ FISH_IMAGE = {
     "メバル":tk.PhotoImage(file = cwd+"/img/mebaru.png"),
     "タイ":tk.PhotoImage(file = cwd+"/img/tai.png"),
     "スズキ":tk.PhotoImage(file = cwd+"/img/suzuki.png"),
-    "カサゴ":tk.PhotoImage(file = cwd+"/img/iwashi.png"),
+    "サケ":tk.PhotoImage(file = cwd+"/img/sake.png"),
 }
 BIG_FISH_IMAGE = {key :img.zoom(2,2) for key , img in FISH_IMAGE.items()}
 
@@ -200,8 +200,8 @@ HIGH_RARE_FISH = [
         "price":19
         },
         {
-        "name":"カサゴ",
-        "img":FISH_IMAGE["カサゴ"],
+        "name":"サケ",
+        "img":FISH_IMAGE["サケ"],
         "aveWeight":1.65,
         "price":65
         },
