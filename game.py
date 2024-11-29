@@ -412,9 +412,9 @@ CHARA_HEIGHT = 96 #キャラの高さ
 charaX = saveData["x"] 
 charaY = saveData["y"] 
 charaD = saveData["d"]  #キャラの向き
-flag = "defalt"
+flag = "default"
 '''
-defalt:通常状態
+default:通常状態
 move:移動中
 wait:釣り中
 bite:ウキがピクつく
@@ -543,7 +543,7 @@ def gameLoop():
         saveGame()
         sys.exit()
     
-    if (flag == "defalt"): #待機中のとき 
+    if (flag == "default"): #待機中のとき 
         if(fishFlag):#魚釣り可能な場所でSpaceが押されたら釣り開始
             if(("space" in key) and ("space" not in prevKey)):
                 canvas.delete("icon")#釣りアイコン削除
@@ -590,7 +590,7 @@ def gameLoop():
                 #移動先が通行可能でないならば
                 if(not PASSAGE_PERMIT[DEFAULT_MAP[charaY+moveY][charaX+moveX]]):
                     #移動をやめて向きのみ変える
-                    flag = "defalt"
+                    flag = "default"
                     setChara(charaX,charaY,charaD,1,"walk")
                     setFishingIcon(charaX,charaY,moveX,moveY)
     
@@ -604,7 +604,7 @@ def gameLoop():
             speed = 0.5
         
         if(moveCount==3):#アニメーションが最終コマならば
-            flag = "defalt"#待機中に状態を戻す
+            flag = "default"#待機中に状態を戻す
             dashFlag = False
             moveCount = 0
             charaX += moveX
@@ -636,7 +636,7 @@ def gameLoop():
             canvas.delete("rod")
             setIcon(charaX,charaY,"miss")#アイコン描写
             print("早すぎた！")
-            flag = "defalt"
+            flag = "default"
             
         if (flag == "wait"):
             fishingCount += 1
@@ -648,7 +648,7 @@ def gameLoop():
             canvas.delete("rod")
             setIcon(charaX,charaY,"miss")#アイコン描写
             print("早すぎた！")
-            flag = "defalt"
+            flag = "default"
         elif(fishingCount == 0):#初回なら
             #キャラクター再描写
             setChara(charaX,charaY,charaD,1,"fishing")
@@ -683,7 +683,7 @@ def gameLoop():
             setChara(charaX,charaY,charaD,1,"walk")
             canvas.delete("rod")
             setIcon(charaX,charaY,"miss")#アイコン描写
-            flag = "defalt"
+            flag = "default"
         
         if (flag == "hit"):
             fishingCount += 1
@@ -751,7 +751,7 @@ def gameLoop():
         
     elif(flag == "result"): #結果表示中のとき
         if(("space" in key)):  #スペースキー押下されたとき
-            flag = "defalt"
+            flag = "default"
             canvas.delete("fish")
             setFishingIcon(charaX,charaY,moveX,moveY)
             resultWindow.destroy()
