@@ -656,7 +656,7 @@ def gameLoop():
             canvas.delete("rod")
             canvas.create_image(getRodCoord(charaX,charaY,charaD),image = ROD[charaD][0],tag="rod",anchor=tk.NW)
             print("ピク...")
-        elif(fishingCount == waitTick):#待ち時間を終えたとき
+        elif(fishingCount >= waitTick):#待ち時間を終えたとき
             flag = "wait"
             waitTick = random.randint(round(200/TICK_TIME),round(2000/TICK_TIME))
             fishingCount = 0
@@ -677,7 +677,7 @@ def gameLoop():
             canvas.create_image(getRodCoord(charaX,charaY,charaD),image = ROD[charaD][2],tag="rod",anchor=tk.NW)
             setIcon(charaX,charaY,"hit")#アイコン描写
             print("ビク！")
-        elif(fishingCount == waitTick):#待ち時間を終えたとき
+        elif(fishingCount >= waitTick):#待ち時間を終えたとき
             print("遅すぎた！")
             #釣りの姿勢から歩行姿勢に戻す
             setChara(charaX,charaY,charaD,1,"walk")

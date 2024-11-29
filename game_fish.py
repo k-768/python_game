@@ -307,7 +307,7 @@ def gameLoop():
         elif(fishingCount == 0):#初回なら
             setChara(charaX,charaY,"bite")
             print("ピク...")
-        elif(fishingCount == waitTick):#待ち時間を終えたとき
+        elif(fishingCount >= waitTick):#待ち時間を終えたとき
             flag = "wait"
             waitTick = random.randint(round(200/TICK_TIME),round(2000/TICK_TIME))
             fishingCount = 0
@@ -325,7 +325,7 @@ def gameLoop():
             setChara(charaX,charaY,"fight")
             setIcon(charaX,charaY,"hit")#アイコン描写
             print("ビク！")
-        elif(fishingCount == waitTick):#待ち時間を終えたとき
+        elif(fishingCount >= waitTick):#待ち時間を終えたとき
             print("遅すぎた！")
             setIcon(charaX,charaY,"miss")#アイコン描写
             flag = "default"
