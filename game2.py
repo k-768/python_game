@@ -773,9 +773,6 @@ def gameLoop():
         #釣りの姿勢から通常状態に戻す
         setChara(charaX,charaY,charaD,1,"walk")
         canvas.delete("rod")
-        #*魚を仮表示
-        canvas.delete("fish")
-        canvas.create_image(getCharaCoord(charaX+0.5,charaY+1),image = selectedFish["img"],tag="fish",anchor=tk.CENTER)
         setIcon(charaX,charaY,"success")#アイコン描写
         showResultWindow(selectedFish["name"],fishRank,fishWeight,fishPrice)
         lvUp()

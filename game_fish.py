@@ -52,9 +52,9 @@ CHARA_HEIGHT = 96 #キャラの高さ
 #キャラクターの座標
 charaX = 160 * MAGNIFICATION_RATE 
 charaY = 128 * MAGNIFICATION_RATE
-flag = "defalt"
+flag = "default"
 '''
-defalt:通常状態
+default:通常状態
 wait:釣り中
 bite:ウキがピクつく
 hit:ウキが沈む
@@ -72,7 +72,7 @@ TICK_TIME = 50
 
 #キャラクターの画像
 CHARA_IMAGE = {
-    "defalt":tk.PhotoImage(file = cwd+"/img/character_A.png"),
+    "default":tk.PhotoImage(file = cwd+"/img/character_A.png"),
     "wait":tk.PhotoImage(file = cwd+"/img/character_B.png"),
     "bite":tk.PhotoImage(file = cwd+"/img/character_C.png"),
     "hit":tk.PhotoImage(file = cwd+"/img/character_D1.png"),
@@ -268,8 +268,8 @@ def gameLoop():
     if("Control_L" in key and "c" in key):
         sys.exit()
     
-    if (flag == "defalt"): #待機中のとき 
-        setChara(charaX,charaY,"defalt")
+    if (flag == "default"): #待機中のとき 
+        setChara(charaX,charaY,"default")
         if(("space" in key) and ("space" not in prevKey)):
             canvas.delete("icon")#釣りアイコン削除
             flag = "wait"
@@ -294,7 +294,7 @@ def gameLoop():
         if(("space" in key) and ("space" not in prevKey) and  fishingCount): 
             setIcon(charaX,charaY,"miss")#アイコン描写
             print("早すぎた！")
-            flag = "defalt"
+            flag = "default"
             
         if (flag == "wait"):
             fishingCount += 1
@@ -303,11 +303,11 @@ def gameLoop():
         if(("space" in key) and ("space" not in prevKey)):  #スペースキー押下されたとき
             setIcon(charaX,charaY,"miss")#アイコン描写
             print("早すぎた！")
-            flag = "defalt"
+            flag = "default"
         elif(fishingCount == 0):#初回なら
             setChara(charaX,charaY,"bite")
             print("ピク...")
-        elif(fishingCount == waitTick):#待ち時間を終えたとき
+        elif(fishingCount >= waitTick):#待ち時間を終えたとき
             flag = "wait"
             waitTick = random.randint(round(200/TICK_TIME),round(2000/TICK_TIME))
             fishingCount = 0
@@ -325,10 +325,10 @@ def gameLoop():
             setChara(charaX,charaY,"fight")
             setIcon(charaX,charaY,"hit")#アイコン描写
             print("ビク！")
-        elif(fishingCount == waitTick):#待ち時間を終えたとき
+        elif(fishingCount >= waitTick):#待ち時間を終えたとき
             print("遅すぎた！")
             setIcon(charaX,charaY,"miss")#アイコン描写
-            flag = "defalt"
+            flag = "default"
         
         if (flag == "hit"):
             fishingCount += 1
@@ -368,17 +368,15 @@ def gameLoop():
         
         
         #釣りの姿勢から通常状態に戻す
-        setChara(charaX,charaY,"defalt")
+        setChara(charaX,charaY,"default")
         canvas.delete("rod")
-        #*魚を仮表示
         setIcon(charaX,charaY,"success")#アイコン描写
         showResultWindow(selectedFish["name"],fishRank,fishWeight,fishPrice)
         flag = "result"
         
     elif(flag == "result"): #結果表示中のとき
         if(("space" in key) and ("space" not in prevKey)):  #スペースキー押下されたとき
-            flag = "defalt"
-            canvas.delete("fish")
+            flag = "default"
             setIcon(charaX,charaY,"fishing")
             resultWindow.destroy()
     
@@ -412,7 +410,7 @@ root.bind("<KeyRelease>", release)
 
 #>>メインループ>>>
 canvas.create_image(0,0,image = MAP_BIG_IMAGE ,tag="bgimage",anchor=tk.NW)
-setChara(charaX,charaY,"defalt")
+setChara(charaX,charaY,"default")
 setIcon(charaX,charaY,"fishing")
 
 gameLoop()
