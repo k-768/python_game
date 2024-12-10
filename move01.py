@@ -20,7 +20,7 @@ CANVAS_SIZE = f"{CANVAS_WIDTH+MARGINE_X}x{CANVAS_HEIGHT+MARGINE_Y}"#キャンバ
 
 #ウィンドウ設置
 root = tk.Tk()
-root.title("マップ表示")
+root.title("マップ移動")
 root.geometry(CANVAS_SIZE)
 
 #キャンバス設置
