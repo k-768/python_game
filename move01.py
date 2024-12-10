@@ -224,7 +224,7 @@ root.bind("<KeyRelease>", release)
 
 #>>メインループ>>>
 mapping()
-canvas.create_image(getCharaCoord(charaX,charaY),image = CHARA_CHIP[0][1],tag="chara",anchor=tk.NW)
+setChara(charaX,charaY,charaD)
 
 gameLoop()
 print("start!")
