@@ -92,7 +92,7 @@ def gameLoop():
     
     setChara(charaX,charaY,charaD,moveCount)
     
-    if(moveCount==3):#アニメーションが最終コマならば
+    if moveCount==3:#アニメーションが最終コマならば
         moveCount = 0
     else:
         moveCount += 1

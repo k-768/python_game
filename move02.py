@@ -155,34 +155,34 @@ def setChara(x,y,d):
 def gameLoop():
     global charaX,charaY,charaD,moveCount,moveX,moveY,flag,key,currentKey,prevKey
     
-    if (len(key)> 0):
+    if len(key)> 0:
         lastKey = key[len(key) - 1] #最後に押されたキー
     else:
         lastKey = ""
     
     
-    if (flag == "default"): #待機中のとき 
+    if flag == "default": #待機中のとき 
         
-        if(len(key)): #何かのキーが押されているとき
-            if(lastKey=="s" or lastKey=="Down"):#下入力
+        if len(key): #何かのキーが押されているとき
+            if lastKey=="s" or lastKey=="Down":#下入力
                 flag = "move"
                 charaD = 0
                 moveX = 0
                 moveY = 1
                 print("↓")
-            elif(lastKey=="a" or lastKey=="Left"):#左入力
+            elif lastKey=="a" or lastKey=="Left":#左入力
                 flag = "move"
                 charaD = 1
                 moveX = -1
                 moveY = 0
                 print("←")
-            elif(lastKey=="d" or lastKey=="Right"):#右入力
+            elif lastKey=="d" or lastKey=="Right":#右入力
                 flag = "move"
                 charaD = 2
                 moveX = 1
                 moveY = 0
                 print("→")
-            elif(lastKey=="w" or lastKey=="Up"):#上入力
+            elif lastKey=="w" or lastKey=="Up":#上入力
                 flag = "move"
                 charaD = 3
                 moveX = 0
@@ -190,16 +190,16 @@ def gameLoop():
                 print("↑")
             
             #上の処理で移動中フラグが立ったとき
-            if(flag == "move"):
+            if flag == "move":
                 #移動先が通行可能でないならば
-                if(not PASSAGE_PERMIT[MAP_DATA[charaY+moveY][charaX+moveX]]):
+                if not PASSAGE_PERMIT[MAP_DATA[charaY+moveY][charaX+moveX]]:
                     #移動をやめて向きのみ変える
                     flag = "default"
                     moveX = 0
                     moveY = 0
                     setChara(charaX,charaY,charaD)
     
-    if (flag == "move"):#移動中のとき
+    if flag == "move":#移動中のとき
         flag = "default"#待機中に状態を戻す
         charaX += moveX
         charaY += moveY
@@ -220,10 +220,10 @@ prevKey = [] #前回の処理までに押されたキー
 #何かのキーが押されたときに呼び出される関数
 def press(e):
     keysym = e.keysym
-    if(keysym not in currentKey):#始めて押されたならば
+    if keysym not in currentKey:#始めて押されたならば
         currentKey.append(keysym)
         print(f"pressed:{keysym}")
-    if(keysym not in key):#前回の処理から始めて押されたならば
+    if keysym not in key:#前回の処理から始めて押されたならば
         key.append(keysym)
 
 #何かのキーが離されたときに呼び出される関数

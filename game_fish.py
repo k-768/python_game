@@ -236,10 +236,10 @@ def showResultWindow(fish,rank,weight,price):
     canvasFrame.pack(fill = tk.BOTH, pady=0)
     infoFrame.pack(fill = tk.BOTH, pady=10)
     
-    if(rank == "silver"):
+    if rank == "silver":
         name = "大物の"+fish
         color = "LightBlue4"
-    elif(rank == "gold"):
+    elif rank == "gold":
         name = "超大物の"+fish
         color = "gold"
     else:
@@ -265,23 +265,23 @@ def gameLoop():
     global charaX,charaY,flag,key,currentKey,prevKey,waitTick,fishingCount,resultWindow
     
     #Ctrl+Cが押されたとき、終了
-    if("Control_L" in key and "c" in key):
+    if "Control_L" in key and "c" in key:
         sys.exit()
     
-    if (flag == "default"): #待機中のとき 
+    if flag == "default": #待機中のとき 
         setChara(charaX,charaY,"default")
-        if(("space" in key) and ("space" not in prevKey)):
+        if ("space" in key) and ("space" not in prevKey):
             canvas.delete("icon")#釣りアイコン削除
             flag = "wait"
             waitTick = random.randint(round(3000/TICK_TIME),round(5000/TICK_TIME))#3-5秒
             fishingCount = 0
     
-    if (flag == "wait"):#魚釣り中のとき
-        if(fishingCount == 0):#初回なら
+    if flag == "wait":#魚釣り中のとき
+        if fishingCount == 0:#初回なら
             #キャラクター再描写
             setChara(charaX,charaY,"wait")
-        elif(fishingCount >= waitTick):#待ち時間を終えたとき
-            if(random.randint(1,3)!=1):#2/3の確率で
+        elif fishingCount >= waitTick:#待ち時間を終えたとき
+            if random.randint(1,3)!=1:#2/3の確率で
                 flag = "hit"
                 waitTick = 10
                 fishingCount = 0
@@ -291,51 +291,51 @@ def gameLoop():
                 fishingCount = 0
         
         # スペースキーが再び押された時
-        if(("space" in key) and ("space" not in prevKey) and  fishingCount): 
+        if ("space" in key) and ("space" not in prevKey) and  fishingCount: 
             setIcon(charaX,charaY,"miss")#アイコン描写
             print("早すぎた！")
             flag = "default"
             
-        if (flag == "wait"):
+        if flag == "wait":
             fishingCount += 1
     
-    elif (flag == "bite"): #魚が少し喰いついたとき
-        if(("space" in key) and ("space" not in prevKey)):  #スペースキー押下されたとき
+    elif flag == "bite": #魚が少し喰いついたとき
+        if ("space" in key) and ("space" not in prevKey):  #スペースキー押下されたとき
             setIcon(charaX,charaY,"miss")#アイコン描写
             print("早すぎた！")
             flag = "default"
-        elif(fishingCount == 0):#初回なら
+        elif fishingCount == 0:#初回なら
             setChara(charaX,charaY,"bite")
             print("ピク...")
-        elif(fishingCount >= waitTick):#待ち時間を終えたとき
+        elif fishingCount >= waitTick:#待ち時間を終えたとき
             flag = "wait"
             waitTick = random.randint(round(200/TICK_TIME),round(2000/TICK_TIME))
             fishingCount = 0
         
-        if (flag == "bite"):
+        if flag == "bite":
             fishingCount += 1
     
-    elif (flag == "hit"): #魚がかかったとき
-        if(("space" in key) and ("space" not in prevKey)):  #スペースキー押下されたとき
+    elif flag == "hit": #魚がかかったとき
+        if ("space" in key) and ("space" not in prevKey):  #スペースキー押下されたとき
             flag = "fight"
             setIcon(charaX,charaY,"fight")#アイコン描写
             fishingCount = 0
-        elif(fishingCount == 0):#初回なら
+        elif fishingCount == 0:#初回なら
             #キャラクター再描写
             setChara(charaX,charaY,"fight")
             setIcon(charaX,charaY,"hit")#アイコン描写
             print("ビク！")
-        elif(fishingCount >= waitTick):#待ち時間を終えたとき
+        elif fishingCount >= waitTick:#待ち時間を終えたとき
             print("遅すぎた！")
             setIcon(charaX,charaY,"miss")#アイコン描写
             flag = "default"
         
-        if (flag == "hit"):
+        if flag == "hit":
             fishingCount += 1
     
-    elif (flag == "fight"): #かかった魚を釣り上げているとき
-        if(fishingCount < 20):
-            if(fishingCount%4 == 0 or fishingCount%4 == 1 ):
+    elif flag == "fight": #かかった魚を釣り上げているとき
+        if fishingCount < 20:
+            if fishingCount%4 == 0 or fishingCount%4 == 1 :
                 setChara(charaX,charaY,"hit")
             else:
                 setChara(charaX,charaY,"fight")
@@ -343,7 +343,7 @@ def gameLoop():
         else:
             flag = "success"
     
-    elif(flag == "success"): #釣りに成功したとき
+    elif flag == "success": #釣りに成功したとき
         #ランダムな魚を選択
         selectedFish = random.choice((random.choices(FISH_LIST,k=1,weights = (75,20,5)))[0])
         print(selectedFish["name"])
@@ -355,10 +355,10 @@ def gameLoop():
         fishPrice = fishWeight * selectedFish["price"]
         
         #魚のランクを決定、ランクに応じて価格を上方修正
-        if(fishWeight > selectedFish["aveWeight"]*1.4):
+        if fishWeight > selectedFish["aveWeight"]*1.4:
             fishRank = "gold"
             fishPrice *= 1.4
-        elif (fishWeight > selectedFish["aveWeight"]*1.2):
+        elif fishWeight > selectedFish["aveWeight"]*1.2:
             fishRank = "silver"
             fishPrice *= 1.2
         else:
@@ -374,8 +374,8 @@ def gameLoop():
         showResultWindow(selectedFish["name"],fishRank,fishWeight,fishPrice)
         flag = "result"
         
-    elif(flag == "result"): #結果表示中のとき
-        if(("space" in key) and ("space" not in prevKey)):  #スペースキー押下されたとき
+    elif flag == "result": #結果表示中のとき
+        if ("space" in key) and ("space" not in prevKey):  #スペースキー押下されたとき
             flag = "default"
             setIcon(charaX,charaY,"fishing")
             resultWindow.destroy()
@@ -392,10 +392,10 @@ prevKey = [] #前回の処理までに押されたキー
 #何かのキーが押されたときに呼び出される関数
 def press(e):
     keysym = e.keysym
-    if(keysym not in currentKey):#始めて押されたならば
+    if keysym not in currentKey:#始めて押されたならば
         currentKey.append(keysym)
         print(f"pressed:{keysym}")
-    if(keysym not in key):#前回の処理から始めて押されたならば
+    if keysym not in key:#前回の処理から始めて押されたならば
         key.append(keysym)
 
 #何かのキーが離されたときに呼び出される関数

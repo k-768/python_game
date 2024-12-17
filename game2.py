@@ -141,24 +141,24 @@ def setFishingIcon(x,y,d):
     """
     global fishFlag
     
-    if(d == 0):#下向き
+    if d == 0:#下向き
         moveX = 0
         moveY = 1
-    elif(d == 1):#左向き
+    elif d == 1:#左向き
         moveX = -1
         moveY = 0
-    elif(d == 2):#右向き
+    elif d == 2:#右向き
         moveX = 1
         moveY = 0
-    elif(d == 3):#上向き
+    elif d == 3:#上向き
         moveX = 0
         moveY = -1
     
     
     # 移動先がマップ範囲内ならば
-    if (0 <= y+moveY < len(DEFAULT_MAP)) and (0 <= x+moveX < len(DEFAULT_MAP[0])):
+    if 0 <= y+moveY < len(DEFAULT_MAP) and 0 <= x+moveX < len(DEFAULT_MAP[0]):
         #前のマスが釣り可能ならば
-        if(FISHING_PERMIT[DEFAULT_MAP[y+moveY][x+moveX]]):
+        if FISHING_PERMIT[DEFAULT_MAP[y+moveY][x+moveX]]:
             setIcon(x,y,"fishing")
             print(f"you can fishing @({x+moveX},{y+moveY})")
             fishFlag = True
@@ -355,8 +355,8 @@ def saveGame():
 
 def lvUp():
     global saveData
-    if(saveData["lv"] <= 10):
-        if(saveData["money"] >= 30+30*saveData["lv"]):
+    if saveData["lv"] <= 10:
+        if saveData["money"] >= 30+30*saveData["lv"]:
             saveData["money"] -= 30+30*saveData["lv"]
             saveData["lv"] += 1
             print("Lv."+str(saveData["lv"])+"に上がった")
@@ -388,10 +388,10 @@ def showResultWindow(fish,rank,weight,price):
     canvasFrame.pack(fill = tk.BOTH, pady=0)
     infoFrame.pack(fill = tk.BOTH, pady=10)
     
-    if(rank == "silver"):
+    if rank == "silver":
         name = "大物の"+fish
         color = "LightBlue4"
-    elif(rank == "gold"):
+    elif rank == "gold":
         name = "超大物の"+fish
         color = "gold"
     else:
@@ -410,7 +410,7 @@ def showResultWindow(fish,rank,weight,price):
     fishName.pack()
     fishWeight.pack()
     fishPrice.pack()
-    if(weight == saveData[fish]["maxWeight"]):
+    if weight == saveData[fish]["maxWeight"]:
         record.pack()
 
 #>>キャラクター>>
@@ -559,12 +559,12 @@ def getRodCoord(x,y,d,isRandom = False):
     dx = 0
     dy = 0
     
-    if(d==1):
+    if d==1:
         x -= 1
-    elif(d==3):
+    elif d==3:
         y -= 1
     
-    if(isRandom):
+    if isRandom:
         dx = random.randint(0,2) -1 #-1,0,1のいずれか
         dy = random.randint(0,2) -1
     
@@ -581,7 +581,7 @@ def setLod(x,y,d,frame,isRandom = False):
 def gameLoop():
     global charaX,charaY,charaD,saveData,dashFlag,moveCount,moveX,moveY,flag,key,currentKey,prevKey,speed,waitTick,fishingCount,resultWindow
     
-    if (len(key)> 0):
+    if len(key)> 0:
         lastKey = key[len(key) - 1] #最後に押されたキー
     else:
         lastKey = ""
@@ -589,45 +589,45 @@ def gameLoop():
     speed = 1
     
     #Ctrl+Cが押されたとき、セーブして終了
-    if("Control_L" in key and "c" in key):
+    if "Control_L" in key and "c" in key:
         saveGame()
         sys.exit()
     
-    if (flag == "default"): #待機中のとき
-        if(fishFlag):#魚釣り可能な場所でSpaceが押されたら釣り開始
-            if(("space" in key) and ("space" not in prevKey)):
+    if flag == "default": #待機中のとき
+        if fishFlag:#魚釣り可能な場所でSpaceが押されたら釣り開始
+            if "space" in key and "space" not in prevKey:
                 canvas.delete("icon")#釣りアイコン削除
                 flag = "wait"
                 waitTick = random.randint(round(3000/TICK_TIME),round(5000/TICK_TIME))#3-5秒
                 fishingCount = 0
         
-        if("Shift_L" in key):#Shiftキーが押されているならダッシュ
+        if "Shift_L" in key:#Shiftキーが押されているならダッシュ
             dashFlag = True
-            if(lastKey == "Shift_L"):
+            if lastKey == "Shift_L":
                 lastKey = key[len(key) - 2]
         else:
             dashFlag = False
         
-        if(len(key)): #SHIFT以外の何かのキーが押されているとき
-            if(lastKey=="s" or lastKey=="Down"):#下入力
+        if len(key): #SHIFT以外の何かのキーが押されているとき
+            if lastKey=="s" or lastKey=="Down":#下入力
                 flag = "move"
                 charaD = 0
                 moveX = 0
                 moveY = 1
                 print("↓")
-            elif(lastKey=="a" or lastKey=="Left"):#左入力
+            elif lastKey=="a" or lastKey=="Left":#左入力
                 flag = "move"
                 charaD = 1
                 moveX = -1
                 moveY = 0
                 print("←")
-            elif(lastKey=="d" or lastKey=="Right"):#右入力
+            elif lastKey=="d" or lastKey=="Right":#右入力
                 flag = "move"
                 charaD = 2
                 moveX = 1
                 moveY = 0
                 print("→")
-            elif(lastKey=="w" or lastKey=="Up"):#上入力
+            elif lastKey=="w" or lastKey=="Up":#上入力
                 flag = "move"
                 charaD = 3
                 moveX = 0
@@ -635,10 +635,10 @@ def gameLoop():
                 print("↑")
             
             #上の処理で移動中フラグが立ったとき
-            if(flag == "move"):
+            if flag == "move":
                 canvas.delete("icon")#釣りアイコン削除
                 #移動先が通行可能でないならば
-                if(not PASSAGE_PERMIT[DEFAULT_MAP[charaY+moveY][charaX+moveX]]):
+                if not PASSAGE_PERMIT[DEFAULT_MAP[charaY+moveY][charaX+moveX]]:
                     #移動をやめて向きのみ変える
                     setFishingIcon(charaX,charaY,charaD)
                     flag = "default"
@@ -647,15 +647,15 @@ def gameLoop():
                     setChara(charaX,charaY,charaD,1,"walk")
                     
     
-    elif (flag == "move"):#移動中のとき
+    elif flag == "move":#移動中のとき
         #キャラクター再描写
         setChara(charaX,charaY,charaD,moveCount,"walk")
-        if(dashFlag):
+        if dashFlag:
             speed = 1
         else:
             speed = 0.5
         
-        if(moveCount==3):#アニメーションが最終コマならば
+        if moveCount==3:#アニメーションが最終コマならば
             flag = "default"#待機中に状態を戻す
             dashFlag = False
             moveCount = 0
@@ -665,23 +665,23 @@ def gameLoop():
         else:
             moveCount += 1
     
-    elif (flag == "wait"):#魚釣り中のとき
+    elif flag == "wait":#魚釣り中のとき
         moveX = 0
         moveY = 0
         # スペースキーが再び押された時
-        if(("space" in key) and ("space" not in prevKey)): 
+        if "space" in key and "space" not in prevKey: 
             setChara(charaX,charaY,charaD,1,"walk")
             canvas.delete("rod")
             setIcon(charaX,charaY,"miss")#アイコン描写
             print("早すぎた！")
             flag = "default"
-        elif(fishingCount == 0):#初回なら
+        elif fishingCount == 0:#初回なら
             #キャラクター再描写
             setChara(charaX,charaY,charaD,1,"fishing")
             #釣り竿描写
             setLod(charaX,charaY,charaD,1)
-        elif(fishingCount >= waitTick):#待ち時間を終えたとき
-            if(random.randint(1,3)==1):#1/3の確率で
+        elif fishingCount >= waitTick:#待ち時間を終えたとき
+            if random.randint(1,3)==1:#1/3の確率で
                 flag = "hit"
                 waitTick = 10
                 fishingCount = 0
@@ -690,44 +690,44 @@ def gameLoop():
                 waitTick = random.randint(2,10)
                 fishingCount = 0
             
-        if (flag == "wait"):
+        if flag == "wait":
             fishingCount += 1
     
-    elif (flag == "bite"): #魚が少し喰いついたとき
-        if(("space" in key) and ("space" not in prevKey)):  #スペースキー押下されたとき
+    elif flag == "bite": #魚が少し喰いついたとき
+        if "space" in key and "space" not in prevKey:  #スペースキー押下されたとき
             #釣りの姿勢から歩行姿勢に戻す
             setChara(charaX,charaY,charaD,1,"walk")
             canvas.delete("rod")
             setIcon(charaX,charaY,"miss")#アイコン描写
             print("早すぎた！")
             flag = "default"
-        elif(fishingCount == 0):#初回なら
+        elif fishingCount == 0:#初回なら
             #キャラクター再描写
             setChara(charaX,charaY,charaD,1,"fishing")
             #釣り竿再描写
             setLod(charaX,charaY,charaD,0)
             print("ピク...")
-        elif(fishingCount >= waitTick):#待ち時間を終えたとき
+        elif fishingCount >= waitTick:#待ち時間を終えたとき
             flag = "wait"
             waitTick = random.randint(round(200/TICK_TIME),round(2000/TICK_TIME))
             fishingCount = 0
         
-        if (flag == "bite"):
+        if flag == "bite":
             fishingCount += 1
     
-    elif (flag == "hit"): #魚がかかったとき
-        if(("space" in key) and ("space" not in prevKey)):  #スペースキー押下されたとき
+    elif flag == "hit": #魚がかかったとき
+        if "space" in key and "space" not in prevKey:  #スペースキー押下されたとき
             flag = "fight"
             setIcon(charaX,charaY,"fight")#アイコン描写
             fishingCount = 0
-        elif(fishingCount == 0):#初回なら
+        elif fishingCount == 0:#初回なら
             #キャラクター再描写
             setChara(charaX,charaY,charaD,2,"fishing")
             #釣り竿再描写
             setLod(charaX,charaY,charaD,2)
             setIcon(charaX,charaY,"hit")#アイコン描写
             print("ビク！")
-        elif(fishingCount >= waitTick):#待ち時間を終えたとき
+        elif fishingCount >= waitTick:#待ち時間を終えたとき
             print("遅すぎた！")
             #釣りの姿勢から歩行姿勢に戻す
             setChara(charaX,charaY,charaD,1,"walk")
@@ -735,18 +735,18 @@ def gameLoop():
             setIcon(charaX,charaY,"miss")#アイコン描写
             flag = "default"
         
-        if (flag == "hit"):
+        if flag == "hit":
             fishingCount += 1
     
-    elif (flag == "fight"): #かかった魚を釣り上げているとき
-        if(fishingCount < 20):
+    elif flag == "fight": #かかった魚を釣り上げているとき
+        if fishingCount < 20:
             speed = 0.5
             setLod(charaX,charaY,charaD,2,True)
             fishingCount += 1
         else:
             flag = "success"
     
-    elif(flag == "success"): #釣りに成功したとき
+    elif flag == "success": #釣りに成功したとき
         #ランダムな魚を選択
         selectedFish = random.choice((random.choices(FISH_LIST,k=1,weights = fishRate(saveData["lv"])))[0])
         print(selectedFish["name"])
@@ -758,10 +758,10 @@ def gameLoop():
         fishPrice = fishWeight * selectedFish["price"]
         
         #魚のランクを決定、ランクに応じて価格を上方修正
-        if(fishWeight > selectedFish["aveWeight"]*1.4):
+        if fishWeight > selectedFish["aveWeight"]*1.4:
             fishRank = "gold"
             fishPrice *= 1.4
-        elif (fishWeight > selectedFish["aveWeight"]*1.2):
+        elif fishWeight > selectedFish["aveWeight"]*1.2:
             fishRank = "silver"
             fishPrice *= 1.2
         else:
@@ -773,10 +773,10 @@ def gameLoop():
         saveData[selectedFish["name"]]["count"] += 1 #釣った数+1
         saveData[selectedFish["name"]]["totalWeight"] += fishWeight #総重量加算
         
-        if(not saveData[selectedFish["name"]][fishRank] ): #そのランクを釣るのが初めてなら更新
+        if not saveData[selectedFish["name"]][fishRank]: #そのランクを釣るのが初めてなら更新
             saveData[selectedFish["name"]][fishRank] = True
             
-        if(saveData[selectedFish["name"]]["maxWeight"] < fishWeight ): #釣った魚が今までで一番重ければ記録を更新
+        if saveData[selectedFish["name"]]["maxWeight"] < fishWeight: #釣った魚が今までで一番重ければ記録を更新
             saveData[selectedFish["name"]]["maxWeight"] = fishWeight
         
         saveData["money"] += fishPrice #所持金を更新
@@ -792,8 +792,8 @@ def gameLoop():
         lvUp()
         flag = "result"
         
-    elif(flag == "result"): #結果表示中のとき
-        if(("space" in key) and ("space" not in prevKey)):  #スペースキー押下されたとき
+    elif flag == "result": #結果表示中のとき
+        if "space" in key and "space" not in prevKey:  #スペースキー押下されたとき
             flag = "default"
             canvas.delete("fish")
             setFishingIcon(charaX,charaY,charaD)
@@ -818,10 +818,10 @@ prevKey = [] #前回の処理までに押されたキー
 #何かのキーが押されたときに呼び出される関数
 def press(e):
     keysym = e.keysym
-    if(keysym not in currentKey):#始めて押されたならば
+    if keysym not in currentKey:#始めて押されたならば
         currentKey.append(keysym)
         print(f"pressed:{keysym}")
-    if(keysym not in key):#前回の処理から始めて押されたならば
+    if keysym not in key:#前回の処理から始めて押されたならば
         key.append(keysym)
 
 #何かのキーが離されたときに呼び出される関数
