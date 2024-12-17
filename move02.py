@@ -64,7 +64,10 @@ MAP_DATA = [
     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
 ]
 
-
+#通行許可設定
+#0:不可
+#1:可能
+PASSAGE_PERMIT = [0,1,1,0]
 
 #>>マップ描画>>>
 #マップチップを並べてマップを作成する関数
@@ -185,6 +188,16 @@ def gameLoop():
                 moveX = 0
                 moveY = -1
                 print("↑")
+            
+            #上の処理で移動中フラグが立ったとき
+            if(flag == "move"):
+                #移動先が通行可能でないならば
+                if(not PASSAGE_PERMIT[MAP_DATA[charaY+moveY][charaX+moveX]]):
+                    #移動をやめて向きのみ変える
+                    flag = "default"
+                    moveX = 0
+                    moveY = 0
+                    setChara(charaX,charaY,charaD)
     
     if (flag == "move"):#移動中のとき
         flag = "default"#待機中に状態を戻す

@@ -92,6 +92,7 @@ flag = "default"
 default:通常状態
 move:移動中
 '''
+FRAME_LIST = [0,1,2,1]
 
 moveCount = 0    #移動カウンタ 0から3の4段階
 
@@ -149,7 +150,7 @@ def setChara(x,y,d,frame):
     frame:コマ数
     """
     #キャラの画像を選択
-    img = CHARA_CHIP[d][frame-2*(frame//3)]
+    img = CHARA_CHIP[d][FRAME_LIST[frame]]
     
     #今の画像を消して再描写
     canvas.delete("chara")
