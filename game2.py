@@ -804,10 +804,10 @@ def gameLoop():
     root.after(round(TICK_TIME/speed),gameLoop)
 
 #所持金が変更されたとき呼び出され、表示を変更する
-def onMoneyChange(varname, index, mode):
+def onMoneyChange(varname):
     canvas.itemconfigure(money_text, text=root.getvar(varname))
 
-def onLvChange(varname, index, mode):
+def onLvChange(varname):
     canvas.itemconfigure(lv_text, text=root.getvar(varname))
 
 #>>キー監視>>
