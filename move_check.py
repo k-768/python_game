@@ -162,7 +162,7 @@ FRAME_LIST = [0,1,2,1]
 moveCount = 0    #移動カウンタ 0から3の4段階
 
 #ゲームの基本となる1ティック時間(ms)
-TICK_TIME = 250
+TICK_TIME = 50
 
 #移動方向
 moveX = 0
@@ -279,10 +279,10 @@ def gameLoop():
         
         if moveCount==3:#アニメーションが最終コマならば
             flag = "default"#待機中に状態を戻す
-            setFishingIcon(charaX,charaY,charaD)
             moveCount = 0
             charaX += moveX
             charaY += moveY
+            setFishingIcon(charaX,charaY,charaD)
         else:
             moveCount += 1
     
