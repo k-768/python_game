@@ -640,12 +640,12 @@ def gameLoop():
                 #移動先が通行可能でないならば
                 if not PASSAGE_PERMIT[DEFAULT_MAP[charaY+moveY][charaX+moveX]]:
                     #移動をやめて向きのみ変える
-                    setFishingIcon(charaX,charaY,charaD)
+                    
                     flag = "default"
                     moveX = 0
                     moveY = 0
                     setChara(charaX,charaY,charaD,1,"walk")
-                    
+                    setFishingIcon(charaX,charaY,charaD)
     
     elif flag == "move":#移動中のとき
         #キャラクター再描写
